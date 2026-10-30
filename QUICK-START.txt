@@ -1,9 +1,9 @@
-PatchMaster 2.0.17 - Quick Start Guide
+Patch-SecOps Solution 2.0.17 - Quick Start Guide
 ======================================
 
 WHAT YOU HAVE:
 --------------
-✅ dist/patchmaster-2.0.17.tar.gz - Complete PatchMaster package (75MB)
+✅ dist/patchmaster-2.0.17.tar.gz - Complete Patch-SecOps Solution package (75MB)
 ✅ backend/static/agent-latest.deb - Agent package v2.0.1 with all dependencies (3.1MB)
 ✅ All fixes applied: WebSocket, frontend-backend, apt retry, agent deps
 
@@ -28,7 +28,7 @@ bash packaging/install-bare.sh
 # - Configure WebSocket proxy
 # - Start all services automatically
 
-# Access PatchMaster
+# Access Patch-SecOps Solution
 # Open browser: http://172.24.1.254:3000
 
 STEP 2: DEPLOY AGENT (agent@agent)
@@ -61,7 +61,7 @@ journalctl -u patch-agent-heartbeat -n 20
 
 STEP 3: VERIFY EVERYTHING WORKS
 --------------------------------
-1. Open PatchMaster UI: http://172.24.1.254:3000
+1. Open Patch-SecOps Solution UI: http://172.24.1.254:3000
 2. Check backend API: http://172.24.1.254:8000/api/health
 3. Navigate to "Agents" page - should see agent registered
 4. Navigate to "Groups & Tags" page - should load without errors

@@ -142,7 +142,7 @@ async def activate_license(req: ActivateRequest, user=Depends(require_role(UserR
 async def activate_license_with_bg(
     payload: LicenseActivationRequest,
     background_tasks: BackgroundTasks,
-    current_user = Depends(get_current_user)
+    current_user = Depends(require_role(UserRole.admin, UserRole.operator))
 ):
     """Activate a new license key (with background ping)."""
     key = normalize_license_key(payload.key) or normalize_license_key(payload.license_key)

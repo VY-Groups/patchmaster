@@ -607,7 +607,6 @@ async def apply_policy_to_hosts(
 
 async def _execute_admin_task_run(execution_id: int) -> dict[str, Any]:
     async with async_session() as db:
-        await _ensure_policy_schema(db)
         query = (
             select(AdminTaskExecution)
             .options(
@@ -651,9 +650,8 @@ async def _execute_admin_task_run(execution_id: int) -> dict[str, Any]:
 async def create_policy(
     policy: PolicyCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
-    await _ensure_policy_schema(db)
     _parse_yaml(policy.yaml_content)
     new_policy = Policy(
         name=policy.name,
@@ -688,7 +686,6 @@ async def list_policies(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    await _ensure_policy_schema(db)
     query = (
         select(Policy)
         .options(selectinload(Policy.revisions), selectinload(Policy.executions))
@@ -703,9 +700,8 @@ async def update_policy(
     policy_id: int,
     body: PolicyUpdate,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
-    await _ensure_policy_schema(db)
     policy = await _get_policy_with_relations(db, policy_id)
     if not policy:
         raise HTTPException(status_code=404, detail="Policy not found")
@@ -746,9 +742,8 @@ async def update_policy(
 async def delete_policy(
     policy_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
-    await _ensure_policy_schema(db)
     result = await db.execute(select(Policy).where(Policy.id == policy_id))
     policy = result.scalar_one_or_none()
     if not policy:
@@ -764,7 +759,6 @@ async def list_policy_revisions(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    await _ensure_policy_schema(db)
     query = (
         select(PolicyRevision)
         .where(PolicyRevision.policy_id == policy_id)
@@ -780,7 +774,6 @@ async def list_policy_executions(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    await _ensure_policy_schema(db)
     query = (
         select(PolicyExecution)
         .where(PolicyExecution.policy_id == policy_id)
@@ -797,7 +790,6 @@ async def activate_policy_revision(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
-    await _ensure_policy_schema(db)
     policy = await _get_policy_with_relations(db, policy_id)
     if not policy:
         raise HTTPException(status_code=404, detail="Policy not found")
@@ -832,7 +824,6 @@ async def dry_run_policy_revision(
         require_role(UserRole.admin, UserRole.operator, UserRole.auditor)
     ),
 ):
-    await _ensure_policy_schema(db)
     return await apply_policy_to_hosts(
         policy_id,
         body.host_ids,
@@ -854,7 +845,6 @@ async def apply_policy_revision(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
-    await _ensure_policy_schema(db)
     return await apply_policy_to_hosts(
         policy_id,
         body.host_ids,
@@ -876,7 +866,6 @@ async def rollback_policy_revision(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
-    await _ensure_policy_schema(db)
     policy = await _get_policy_with_relations(db, policy_id)
     if not policy:
         raise HTTPException(status_code=404, detail="Policy not found")
@@ -911,7 +900,6 @@ async def apply_policy_route(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
-    await _ensure_policy_schema(db)
     policy = await _get_policy_with_relations(db, policy_id)
     if not policy:
         raise HTTPException(status_code=404, detail="Policy not found")
@@ -932,7 +920,6 @@ async def list_admin_task_templates(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    await _ensure_policy_schema(db)
     await _seed_admin_task_templates(db)
     await db.commit()
     rows = (
@@ -952,7 +939,6 @@ async def list_admin_task_executions(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    await _ensure_policy_schema(db)
     query = (
         select(AdminTaskExecution)
         .options(
@@ -973,7 +959,6 @@ async def execute_admin_task(
         require_role(UserRole.admin, UserRole.operator, UserRole.auditor)
     ),
 ):
-    await _ensure_policy_schema(db)
     await _seed_admin_task_templates(db)
     template = await db.get(AdminTaskTemplate, body.template_id)
     if not template or not template.is_enabled:

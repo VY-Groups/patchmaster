@@ -1,7 +1,7 @@
-# PatchMaster Agent Package Size Comparison
+# Patch-SecOps Solution Agent Package Size Comparison
 
 ## Overview
-This document compares the sizes of all PatchMaster agent packages and explains the differences.
+This document compares the sizes of all Patch-SecOps Solution agent packages and explains the differences.
 
 **Last Updated**: April 12, 2026  
 **Agent Version**: 2.0.0
@@ -49,7 +49,7 @@ All packages now include **full bundled Python virtualenv**. Size differences ar
 ## What's Included in Each Package?
 
 ### All Packages Include:
-- ✅ PatchMaster agent Python scripts (`agent.py`, `main.py`)
+- ✅ Patch-SecOps Solution agent Python scripts (`agent.py`, `main.py`)
 - ✅ Python virtual environment with all dependencies
 - ✅ Service files (systemd, rc.d, or Windows Service)
 - ✅ Configuration templates
@@ -264,7 +264,7 @@ python agent/build_agent_artifacts.py
 
 ## Conclusion
 
-All PatchMaster agents are **self-contained and air-gapped ready**. The size differences are due to:
+All Patch-SecOps Solution agents are **self-contained and air-gapped ready**. The size differences are due to:
 
 1. ✅ **Compression efficiency**: RPM uses best compression (1.3 MB)
 2. ✅ **Platform requirements**: Windows needs full Python runtime (48 MB)

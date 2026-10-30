@@ -16,8 +16,8 @@ class SumoLogicIntegration:
     def __init__(
         self,
         http_source_url: str,
-        source_category: str = "PatchMaster",
-        source_name: str = "PatchMaster",
+        source_category: str = "Patch-SecOps Solution",
+        source_name: str = "Patch-SecOps Solution",
         verify_ssl: bool = True,
     ):
         """
@@ -123,7 +123,7 @@ class SumoLogicIntegration:
         """Test the Sumo Logic connection."""
         test_event = {
             "event_type": "test",
-            "message": "PatchMaster Sumo Logic integration test",
+            "message": "Patch-SecOps Solution Sumo Logic integration test",
             "timestamp": datetime.utcnow().isoformat(),
         }
         return await self.send_event(test_event)

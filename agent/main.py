@@ -156,14 +156,17 @@ def get_os_info():
         name = info.get("NAME", info.get("ID", "Linux"))
         version = info.get("VERSION_ID", info.get("VERSION", ""))
 
-        # Detect WSL (Windows Subsystem for Linux)
-        try:
-            with open("/proc/version") as f:
-                proc_version = f.read().lower()
-                if "wsl" in proc_version or "microsoft" in proc_version:
-                    name = f"WSL {name}"  # Prefix with WSL for identification
-        except Exception:
-            pass
+        # Detect WSL (Windows Subsystem for Linux). Docker Desktop containers
+        # see the same WSL2 kernel, so /.dockerenv has to veto the prefix -
+        # otherwise every fleet container reports itself as a WSL host.
+        if not os.path.exists("/.dockerenv"):
+            try:
+                with open("/proc/version") as f:
+                    proc_version = f.read().lower()
+                    if "wsl" in proc_version or "microsoft" in proc_version:
+                        name = f"WSL {name}"  # Prefix with WSL for identification
+            except Exception:
+                pass
 
         return name, version
     except Exception:
@@ -431,7 +434,7 @@ def check_local_api():
     """Watchdog: verify the local agent API is running."""
     port = int(os.environ.get("AGENT_PORT", "8080"))
     try:
-        r = requests.get(f"http://127.0.0.1:{port}/snapshot/status", timeout=5)
+        r = requests.get(f"http://127.0.0.1:{port}/health", timeout=5)
         if r.status_code == 200:
             return True
     except Exception:
@@ -450,10 +453,24 @@ def restart_agent_service():
         except Exception as e:
             logger.error(f"Restart-Service failed: {e}")
     else:
-        try:
-            subprocess.run(["systemctl", "restart", "patch-agent"], check=False)
-        except Exception as e:
-            logger.error(f"systemctl restart failed: {e}")
+        # Containers don't have systemd; try service(8), then fall back to
+        # re-executing the agent process itself.
+        restarted = False
+        for cmd in (["service", "patch-agent", "restart"], ["service", "patch-agent", "start"]):
+            try:
+                r = subprocess.run(cmd, check=False, capture_output=True)
+                if r.returncode == 0:
+                    restarted = True
+                    break
+            except FileNotFoundError:
+                continue
+            except Exception as e:
+                logger.debug("restart via %s failed: %s", cmd, e)
+        if not restarted:
+            logger.warning(
+                "No service manager available (systemctl/service missing); "
+                "relying on Docker restart policy for recovery."
+            )
 
 
 def main():
@@ -469,7 +486,9 @@ def main():
             except Exception:
                 logger.warning("Failed to chmod %s to 600", token_path)
     else:
-        agent_token = register(controller_url)
+        agent_token = register(
+            controller_url, token=os.environ.get("AGENT_API_TOKEN", "").strip() or None
+        )
         if agent_token:
             try:
                 STATE_DIR.mkdir(parents=True, exist_ok=True)
@@ -506,7 +525,10 @@ def main():
                     except Exception:
                         pass
             else:
-                agent_token = register(controller_url)
+                agent_token = register(
+                    controller_url,
+                    token=os.environ.get("AGENT_API_TOKEN", "").strip() or None,
+                )
                 if agent_token:
                     try:
                         _write_private_text(token_path, agent_token)

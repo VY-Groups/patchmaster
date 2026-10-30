@@ -15,7 +15,13 @@ export default function BackupManagerPage({ API, apiFetch, useInterval }) {
   const [testMsg, setTestMsg] = useState('');
 
   const fetchAll = () => {
-    apiFetch(`${API}/api/hosts/`).then(r => r.json()).then(setHosts).catch(() => {});
+    apiFetch(`${API}/api/hosts/`).then(r => {
+      if (!r.ok) throw new Error(`hosts fetch failed: ${r.status}`);
+      return r.json();
+    }).then(d => setHosts(Array.isArray(d) ? d : (Array.isArray(d?.items) ? d.items : []))).catch((e) => {
+      console.error('BackupManager: failed to load hosts:', e);
+      setHosts([]);
+    });
     apiFetch(`${API}/api/backups/configs`).then(r => r.json()).then(setConfigs).catch(() => {});
   };
 

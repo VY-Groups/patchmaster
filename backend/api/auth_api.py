@@ -1,9 +1,12 @@
 """Auth API — login, register, user management (enterprise hardened)."""
 
+import logging
 import os
 import re
+import secrets
 import socket
 from datetime import datetime, timedelta, timezone
+from types import SimpleNamespace
 from fastapi import (
     APIRouter,
     Depends,
@@ -37,15 +40,37 @@ from auth import (
     ALGORITHM,
 )
 from api.rbac import Permission, get_user_permissions, check_permission, has_permission
-from models.db_models import User, UserRole
+from api.cicd_secrets import decrypt_json_field
+from models.db_models import User, UserRole, NotificationChannel, PasswordResetOTP
 from license import get_licensed_features
 import monitoring_manager
+
+logger = logging.getLogger(__name__)
 
 # ── Rate limiter (brute-force / credential stuffing protection) ──
 limiter = Limiter(key_func=get_remote_address)
 MAX_LOGIN_ATTEMPTS = int(os.getenv("MAX_LOGIN_ATTEMPTS", "5"))
+# /forgot budget per IP: generous for a human (a couple of resets), tiny for
+# someone trying to push OTP traffic or harvest codes.
+FORGOT_MAX_PER_MINUTE = int(os.getenv("FORGOT_MAX_PER_MINUTE", "10"))
 LOCKOUT_MINUTES = int(os.getenv("LOCKOUT_MINUTES", "15"))
 REFRESH_COOKIE = os.getenv("REFRESH_COOKIE_NAME", "pm_refresh")
+
+
+def install_rate_limiting(app) -> None:
+    """Link this module's limiter to an app - slowapi is inert without it.
+
+    The @limiter.limit decorators only fire from slowapi's middleware, and the
+    429 body is built by its exception handler. main.py and the rate-limit
+    tests both call this helper, so the wiring under test is what ships.
+    """
+    from slowapi import _rate_limit_exceeded_handler
+    from slowapi.errors import RateLimitExceeded
+    from slowapi.middleware import SlowAPIMiddleware
+
+    app.state.limiter = limiter
+    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+    app.add_middleware(SlowAPIMiddleware)
 
 # ── Feature list & role defaults ──
 ALL_FEATURES = [
@@ -295,7 +320,8 @@ class ForgotPasswordRequest(BaseModel):
 
 
 class ResetPasswordRequest(BaseModel):
-    token: str
+    username_or_email: str
+    otp: str
     new_password: str
 
 
@@ -312,8 +338,13 @@ async def login(
     user = result.scalar_one_or_none()
 
     if not user:
-        # Timing-safe: always do the same amount of work
-        verify_password(req.password, "$pbkdf2-sha256$29000$dummy$dummyhash")
+        # Timing-safe: always do the same amount of work (valid hash — a
+        # malformed one made passlib raise and turned every unknown-user
+        # login into a 500).
+        verify_password(
+            req.password,
+            "$pbkdf2-sha256$29000$YWyNce7dm7P2Xst5D8FYiw$RwWENLpD8yEl/G6iNKgPJhPMO4wapamgo7.1ID.p/VU",
+        )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid username or password",
@@ -492,12 +523,120 @@ async def logout(
     return {"ok": True, "message": "Logged out successfully"}
 
 
+_RESET_EMAIL_SUBJECT = "Patch-SecOps Solution password reset code"
+_RESET_EMAIL_BODY = (
+    "Someone requested a password reset for your Patch-SecOps Solution account.\n\n"
+    "Your 6-digit reset code, valid for {ttl} minutes:\n\n{otp}\n\n"
+    "If you did not request this, you can ignore this message."
+)
+
+# OTP policy: 10^6 codes, 5 guesses, 10 minutes -> 0.05% guess chance per code,
+# and each /forgot invalidates the previous one. /forgot is additionally capped
+# per IP (FORGOT_MAX_PER_MINUTE), which is what keeps OTP email volume - and
+# OTP harvesting - bounded; see install_rate_limiting for the wiring.
+OTP_TTL_MINUTES = 10
+OTP_MAX_ATTEMPTS = 5
+
+
+def _utcnow():
+    """Naive UTC now, matching db_models' DateTime storage convention."""
+    return datetime.now(timezone.utc).replace(tzinfo=None)
+
+
+async def _send_reset_email_safe(sendable, title: str, body: str) -> None:
+    """Fire-and-forget send: mirrors notifications.send_event_notification's
+    try/except so an SMTP failure after the response is sent is logged, not raised."""
+    from api.notifications import _send_notification
+
+    try:
+        await _send_notification(sendable, title, body)
+    except Exception:
+        logger.exception("Password reset email delivery failed")
+
+
+async def _queue_reset_email(
+    background_tasks: BackgroundTasks, db: AsyncSession, user: User, otp: str
+) -> bool:
+    """Queue the OTP email to the user's own address; the code is never in an
+    HTTP response. Only the SMTP send is deferred: FastAPI tears down the
+    request's db session before background tasks run, and the send must not sit
+    in the request path (uniform timing = no user-enumeration oracle)."""
+    result = await db.execute(
+        select(NotificationChannel).where(
+            NotificationChannel.channel_type == "email",
+            NotificationChannel.is_enabled == True,
+        )
+    )
+    channel = result.scalars().first()
+    if not channel or not user.email:
+        return False
+    cfg = decrypt_json_field(channel.config)
+    if not cfg.get("smtp_host"):
+        return False
+    sendable = SimpleNamespace(channel_type="email", config={**cfg, "to": user.email})
+    background_tasks.add_task(
+        _send_reset_email_safe,
+        sendable,
+        _RESET_EMAIL_SUBJECT,
+        _RESET_EMAIL_BODY.format(otp=otp, ttl=OTP_TTL_MINUTES),
+    )
+    return True
+
+
 @router.post("/forgot")
+@limiter.limit(f"{FORGOT_MAX_PER_MINUTE}/minute")
 async def forgot_password(
-    req: ForgotPasswordRequest, db: AsyncSession = Depends(get_db)
+    request: Request,
+    req: ForgotPasswordRequest,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
 ):
+    """Always returns the same generic response — no user enumeration and no
+    OTP in the body (the code is delivered out-of-band by email only)."""
     if not req.username_or_email:
         raise HTTPException(400, "username_or_email is required")
+    try:
+        result = await db.execute(
+            select(User).where(
+                (User.username == req.username_or_email)
+                | (User.email == req.username_or_email)
+            )
+        )
+        user = result.scalar_one_or_none()
+        if user and user.is_active:
+            otp = f"{secrets.randbelow(10 ** 6):06d}"
+            # One live code per user: a resend invalidates the previous one.
+            stale = (
+                await db.execute(
+                    select(PasswordResetOTP).where(
+                        PasswordResetOTP.user_id == user.id
+                    )
+                )
+            ).scalars().all()
+            for row in stale:
+                await db.delete(row)
+            db.add(
+                PasswordResetOTP(
+                    user_id=user.id,
+                    code_hash=hash_password(otp),
+                    attempts=0,
+                    expires_at=_utcnow() + timedelta(minutes=OTP_TTL_MINUTES),
+                )
+            )
+            await db.commit()
+            await _queue_reset_email(background_tasks, db, user, otp)
+    except Exception:
+        # Delivery or lookup failures must not change the response shape.
+        logger.warning("Password reset delivery failed", exc_info=True)
+    return {"status": "ok"}
+
+
+@router.post("/reset-password")
+async def reset_password(req: ResetPasswordRequest, db: AsyncSession = Depends(get_db)):
+    # One generic error for every failure mode: an attacker must not learn
+    # whether the account exists or how close the guess was.
+    invalid = HTTPException(400, "Invalid or expired reset code")
+
     result = await db.execute(
         select(User).where(
             (User.username == req.username_or_email)
@@ -505,41 +644,37 @@ async def forgot_password(
         )
     )
     user = result.scalar_one_or_none()
-    if not user:
-        raise HTTPException(404, "User not found")
-    if not user.is_active:
-        raise HTTPException(400, "Account is disabled")
-    token = jwt.encode(
-        {
-            "sub": user.username,
-            "purpose": "reset",
-            "exp": datetime.now(timezone.utc) + timedelta(hours=1),
-        },
-        SECRET_KEY,
-        algorithm=ALGORITHM,
-    )
-    return {"reset_token": token, "expires_in": 3600}
+    if not user or not user.is_active:
+        raise invalid
 
+    rows = (
+        await db.execute(
+            select(PasswordResetOTP).where(PasswordResetOTP.user_id == user.id)
+        )
+    ).scalars().all()
+    row = rows[0] if rows else None
+    if row is None:
+        raise invalid
+    if row.expires_at < _utcnow() or (row.attempts or 0) >= OTP_MAX_ATTEMPTS:
+        await db.delete(row)
+        await db.commit()
+        raise invalid
+    if not verify_password(req.otp, row.code_hash):
+        row.attempts = (row.attempts or 0) + 1
+        if row.attempts >= OTP_MAX_ATTEMPTS:
+            await db.delete(row)  # cap reached: burn the code
+        await db.commit()
+        raise invalid
 
-@router.post("/reset-password")
-async def reset_password(req: ResetPasswordRequest, db: AsyncSession = Depends(get_db)):
-    try:
-        payload = jwt.decode(req.token, SECRET_KEY, algorithms=[ALGORITHM])
-        if payload.get("purpose") != "reset":
-            raise HTTPException(400, "Invalid reset token")
-        username = payload.get("sub")
-    except InvalidTokenError:
-        raise HTTPException(400, "Invalid or expired reset token")
-
+    # Checked only after the code verifies, and before it is spent, so a weak
+    # password never burns the user's OTP.
     validate_password_strength(req.new_password)
 
-    result = await db.execute(select(User).where(User.username == username))
-    user = result.scalar_one_or_none()
-    if not user:
-        raise HTTPException(404, "User not found")
-
+    await db.delete(row)
     user.hashed_password = hash_password(req.new_password)
     await db.commit()
+    # A reset password must invalidate every session opened with the old one.
+    await revoke_all_user_tokens(user.id, db)
     return {"status": "ok"}
 
 
@@ -739,6 +874,8 @@ async def change_password(
     validate_password_strength(new_pw)
     user.hashed_password = hash_password(new_pw)
     await db.commit()
+    # A password change must invalidate every session opened with the old one.
+    await revoke_all_user_tokens(user.id, db)
     return {"ok": True}
 
 

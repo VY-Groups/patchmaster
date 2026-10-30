@@ -293,8 +293,8 @@ test('frontend smoke clicks through dashboard, hosts, cve tracker, patch manager
   await expect(page.getByText(/Feed operations/i)).toBeVisible();
   await expect(page.getByText(/CVE-2026-0001/i)).toBeVisible();
 
-  await nav.getByRole('button', { name: /Patch Manager/i }).click();
-  await expect(page.getByRole('heading', { level: 1, name: /Patch Manager/i })).toBeVisible();
+  await nav.getByRole('button', { name: /Patch Management/i }).click();
+  await expect(page.getByRole('heading', { level: 1, name: /Patch Management/i })).toBeVisible();
   await expect(page.getByText(/Target host and discovery/i)).toBeVisible();
 
   await nav.getByRole('button', { name: /Monitoring Tools/i }).click();

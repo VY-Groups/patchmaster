@@ -540,7 +540,7 @@ export default function NetworkBootPage({ hosts, API, apiFetch, useInterval, App
             <div className="ops-hero-copy">
               <h3>Design, publish, and export a real bare-metal rollout stack from one operator workspace.</h3>
               <p>
-                This workspace now goes beyond planning. Operators can define boot networks, separate the boot-host URL from the PatchMaster controller URL, build reusable install profiles, assign them to specific MAC addresses, publish iPXE and answer endpoints, and download a deployment bundle containing dnsmasq, nginx, and boot-host installer artifacts for a dedicated PXE host.
+                This workspace now goes beyond planning. Operators can define boot networks, separate the boot-host URL from the Patch-SecOps Solution controller URL, build reusable install profiles, assign them to specific MAC addresses, publish iPXE and answer endpoints, and download a deployment bundle containing dnsmasq, nginx, and boot-host installer artifacts for a dedicated PXE host.
               </p>
             </div>
           </div>
@@ -559,7 +559,7 @@ export default function NetworkBootPage({ hosts, API, apiFetch, useInterval, App
           <span className="ops-side-label">Deployment model</span>
           <div className="ops-side-metric">Managed relays</div>
           <p className="ops-side-note">
-            PatchMaster now binds managed hosts as PXE relays, generates relay-scoped bundles, validates relay services, and records boot-session evidence back in the controller.
+            Patch-SecOps Solution now binds managed hosts as PXE relays, generates relay-scoped bundles, validates relay services, and records boot-session evidence back in the controller.
           </p>
           <div className="ops-inline-list">
             <div className="ops-inline-card">
@@ -800,7 +800,7 @@ export default function NetworkBootPage({ hosts, API, apiFetch, useInterval, App
         <div className="ops-table-toolbar">
           <div>
             <div className="ops-panel-title">1. Define a boot network</div>
-            <p className="ops-subtle">Capture the boot-host delivery URL, the PatchMaster controller URL, and the DHCP or firmware values your bare-metal rollout stack needs.</p>
+            <p className="ops-subtle">Capture the boot-host delivery URL, the Patch-SecOps Solution controller URL, and the DHCP or firmware values your bare-metal rollout stack needs.</p>
           </div>
         </div>
           <div className="ops-form-grid">
@@ -841,7 +841,7 @@ export default function NetworkBootPage({ hosts, API, apiFetch, useInterval, App
               <input className="input" value={networkForm.next_server} onChange={(event) => setNetworkForm((current) => ({ ...current, next_server: event.target.value }))} placeholder="http://boot.branch.local" />
             </div>
             <div>
-              <label className="ops-side-label">PatchMaster controller URL</label>
+              <label className="ops-side-label">Patch-SecOps Solution controller URL</label>
               <input className="input" value={networkForm.controller_url} onChange={(event) => setNetworkForm((current) => ({ ...current, controller_url: event.target.value }))} placeholder="http://patchmaster-core.local:8000" />
             </div>
             <div>
@@ -960,7 +960,7 @@ export default function NetworkBootPage({ hosts, API, apiFetch, useInterval, App
           <div className="ops-form-grid" style={{ marginTop: 12 }}>
             <div>
               <label className="ops-side-label">Custom answer template</label>
-              <textarea className="input" rows={6} value={profileForm.answer_template} onChange={(event) => setProfileForm((current) => ({ ...current, answer_template: event.target.value }))} placeholder="Leave blank to let PatchMaster generate a managed-relay answer file with telemetry hooks." />
+              <textarea className="input" rows={6} value={profileForm.answer_template} onChange={(event) => setProfileForm((current) => ({ ...current, answer_template: event.target.value }))} placeholder="Leave blank to let Patch-SecOps Solution generate a managed-relay answer file with telemetry hooks." />
             </div>
             <div>
               <label className="ops-side-label">Post-install script</label>
@@ -1199,7 +1199,7 @@ export default function NetworkBootPage({ hosts, API, apiFetch, useInterval, App
         <div className="ops-table-toolbar">
           <div>
             <div className="ops-panel-title">Provisioning center vs network boot workspace</div>
-            <p className="ops-subtle">This compares the enrolled-host image workflow with the managed-relay bare-metal workflow now available in PatchMaster.</p>
+            <p className="ops-subtle">This compares the enrolled-host image workflow with the managed-relay bare-metal workflow now available in Patch-SecOps Solution.</p>
           </div>
         </div>
         <table className="table ops-table">
@@ -1213,7 +1213,7 @@ export default function NetworkBootPage({ hosts, API, apiFetch, useInterval, App
           <tbody>
             <tr>
               <td><strong>Starting point</strong></td>
-              <td>Requires an already-enrolled host with the PatchMaster agent.</td>
+              <td>Requires an already-enrolled host with the Patch-SecOps Solution agent.</td>
               <td>Handles hosts before the agent exists by using relay-delivered DHCP/TFTP/HTTP boot with controller enrollment on first boot.</td>
             </tr>
             <tr>
@@ -1240,7 +1240,7 @@ export default function NetworkBootPage({ hosts, API, apiFetch, useInterval, App
           </div>
           <div className="ops-detail-item">
             <span>Safe message to customers</span>
-            <strong>PatchMaster now provides stored-image provisioning plus published network-boot artifacts, host assignments, and a downloadable bundle that installs the PXE boot-host services for bare-metal rollout.</strong>
+            <strong>Patch-SecOps Solution now provides stored-image provisioning plus published network-boot artifacts, host assignments, and a downloadable bundle that installs the PXE boot-host services for bare-metal rollout.</strong>
           </div>
         </div>
         <div className="ops-list" style={{ marginTop: 16 }}>

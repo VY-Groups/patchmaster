@@ -28,6 +28,7 @@ from fastapi.exceptions import RequestValidationError
 
 from database import init_db, get_db
 from bootstrap_users import ensure_bootstrap_users
+from bootstrap_smtp import ensure_bootstrap_smtp_channel
 from sqlalchemy import select, func
 from models.db_models import Host
 from api.auth_api import router as auth_router
@@ -69,7 +70,11 @@ from api.testing import router as testing_router
 from api.mirror_repos import router as mirror_router, run_due_mirror_tasks
 from api.ops_queue import router as ops_queue_router, ensure_ops_queue_started
 from api.plugins import router as plugins_router
+from api.counter_plan import router as counter_plan_router
+from api.evidence import router as evidence_router
+from api.tenants import router as tenants_router
 from api.ring_rollout import router as ring_rollout_router
+from api.relay import router as relay_router
 from api.restore_drills import router as restore_drills_router
 from api.runbook import router as runbook_router, run_due_runbook_schedules
 from api.patch_history_presets import router as patch_history_presets_router
@@ -180,6 +185,9 @@ async def lifespan(app: FastAPI):
                     "Bootstrap users are ready for first login: %s",
                     ", ".join(bootstrap_result["created"]),
                 )
+            smtp_result = await ensure_bootstrap_smtp_channel()
+            if smtp_result.get("created"):
+                logger.warning("SMTP email channel ready for OTP delivery at first run")
             # Run schema self-heal once at startup (not on every request)
             try:
                 from api.register_v2 import _ensure_host_schema
@@ -232,7 +240,13 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="PatchMaster by VYGROUP", version="2.0.17", lifespan=lifespan)
+app = FastAPI(title="Patch-SecOps Solution by VYGROUP", version="2.0.17", lifespan=lifespan)
+
+# Rate limiting (S0-1): without this link slowapi's @limiter.limit decorators
+# never fire - it checks limits from its middleware only.
+from api.auth_api import install_rate_limiting  # noqa: E402
+
+install_rate_limiting(app)
 
 # ── License enforcement middleware ──
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -356,7 +370,7 @@ class LicenseMiddleware(BaseHTTPMiddleware):
         "/static/",
         "/boot/",
         "/metrics",
-        "/graphql",  # GraphQL API (read-only by default)
+        "/graphql",  # GraphQL API (requires Bearer access token; has write mutations)
     )
 
     # Map API path prefixes to required feature names for tier enforcement
@@ -410,7 +424,7 @@ class LicenseMiddleware(BaseHTTPMiddleware):
             return JSONResponse(
                 status_code=403,
                 content={
-                    "detail": "No license activated. Please activate a license to use PatchMaster.",
+                    "detail": "No license activated. Please activate a license to use Patch-SecOps Solution.",
                     "license_status": "not_activated",
                 },
             )
@@ -544,13 +558,25 @@ app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 
 @app.get("/api/health")
+@app.get("/health")
+@app.get("/healthz")
 async def health_check():
     return {"status": "healthy", "version": "2.0.17"}
 
 
+@app.get("/api/version")
+async def version_info():
+    return {"version": "2.0.17"}
+
+
+@app.get("/v1/models")
+async def openai_models():
+    return {"object": "list", "data": [{"id": "patchmaster", "object": "model", "owned_by": "patchmaster"}]}
+
+
 @app.get("/api/system/update-status")
 async def update_status():
-    """Return whether a new PatchMaster version is available."""
+    """Return whether a new Patch-SecOps Solution version is available."""
     return version_checker.get_update_status()
 
 
@@ -624,7 +650,11 @@ app.include_router(testing_router)
 app.include_router(mirror_router)
 app.include_router(ops_queue_router)
 app.include_router(plugins_router)
+app.include_router(counter_plan_router)
+app.include_router(evidence_router)
+app.include_router(tenants_router)
 app.include_router(ring_rollout_router)
+app.include_router(relay_router)
 app.include_router(restore_drills_router)
 app.include_router(runbook_router)
 app.include_router(patch_history_presets_router)

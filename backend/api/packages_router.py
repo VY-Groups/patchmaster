@@ -7,6 +7,7 @@ from typing import List
 
 from database import get_db
 from auth import require_role, get_current_user
+from validators import validate_filename
 from models.db_models import UserRole, Host
 from sqlalchemy import select
 
@@ -198,6 +199,10 @@ async def push_package_to_agent(
     if host is None:
         raise HTTPException(404, "Host not found")
     
+    # F13: filename comes from the request - never join it raw.
+    name_check = validate_filename(filename)
+    if not name_check.is_valid:
+        raise HTTPException(400, name_check.message)
     pkg_path = os.path.join(LOCAL_REPO_DIR, filename)
     if not os.path.exists(pkg_path):
         raise HTTPException(404, "Package not found in local repository")

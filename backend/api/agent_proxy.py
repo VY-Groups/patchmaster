@@ -32,7 +32,7 @@ from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from database import get_db, async_session
-from auth import get_current_user
+from auth import get_current_user, require_role
 from license import get_license_info
 from models.db_models import Host, PatchJob, JobStatus, PatchAction, User, UserRole
 
@@ -98,7 +98,7 @@ async def _validate_host_ip(ip: str, db: AsyncSession):
     if not _is_valid_ip(ip):
         raise HTTPException(400, f"Invalid IP format: {ip}")
     result = await db.execute(select(Host).where(Host.ip == ip))
-    if not result.scalar_one_or_none():
+    if not result.scalars().first():
         raise HTTPException(404, f"Host {ip} is not registered")
 
 
@@ -133,7 +133,7 @@ async def _candidate_agent_urls(
     if not db:
         return [_agent_url(ip, path)]
     result = await db.execute(select(Host).where(Host.ip == ip))
-    host = result.scalar_one_or_none()
+    host = result.scalars().first()
     if not host:
         return [_agent_url(ip, path)]
     os_name = (host.os or "").lower()
@@ -194,7 +194,7 @@ async def _get(ip: str, path: str, db: AsyncSession, host: "Host | None" = None)
     await _validate_host_ip(ip, db)
     if host is None:
         result = await db.execute(select(Host).where(Host.ip == ip))
-        host = result.scalar_one_or_none()
+        host = result.scalars().first()
     urls = await _candidate_agent_urls(ip, path, db)
     last_error = None
     async with httpx.AsyncClient(timeout=TIMEOUT) as c:
@@ -217,7 +217,7 @@ async def _get_stream(ip: str, path: str, db: AsyncSession, host: "Host | None" 
     await _validate_host_ip(ip, db)
     if host is None:
         result = await db.execute(select(Host).where(Host.ip == ip))
-        host = result.scalar_one_or_none()
+        host = result.scalars().first()
     urls = await _candidate_agent_urls(ip, path, db)
     last_error = None
     async with httpx.AsyncClient(timeout=None) as c:
@@ -259,7 +259,7 @@ async def _post(
         await _validate_host_ip(ip, db)
     if host is None and db is not None:
         result = await db.execute(select(Host).where(Host.ip == ip))
-        host = result.scalar_one_or_none()
+        host = result.scalars().first()
     urls = await _candidate_agent_urls(ip, path, db)
     last_error = None
     async with httpx.AsyncClient(timeout=120.0) as c:
@@ -284,7 +284,7 @@ async def _post(
 async def reboot_host(
     host_ip: str,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
     await _validate_host_ip(host_ip, db)
     return await _post(host_ip, "/system/reboot", {})
@@ -294,7 +294,7 @@ async def reboot_host(
 async def shutdown_host(
     host_ip: str,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
     await _validate_host_ip(host_ip, db)
     return await _post(host_ip, "/system/shutdown", {})
@@ -305,7 +305,7 @@ async def software_manage(
     host_ip: str,
     body: dict,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
     await _validate_host_ip(host_ip, db)
     return await _post(host_ip, "/software/manage", body)
@@ -326,7 +326,7 @@ async def queue_software_for_shutdown(
     host_ip: str,
     body: dict,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
     await _validate_host_ip(host_ip, db)
     return await _post(host_ip, "/software/queue", body, db)
@@ -355,7 +355,7 @@ async def proxy_upgradable(
 async def proxy_refresh(
     host_ip: str,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
     return await _post(host_ip, "/packages/refresh", db=db)
 
@@ -375,11 +375,11 @@ async def proxy_snap_create(
     host_ip: str,
     body: dict = {},
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
     await _validate_host_ip(host_ip, db)
     result = await db.execute(select(Host).where(Host.ip == host_ip))
-    host = result.scalar_one_or_none()
+    host = result.scalars().first()
     payload = (
         _enrich_snapshot_body_for_windows(host, body) if host else dict(body or {})
     )
@@ -391,11 +391,11 @@ async def proxy_snap_precheck(
     host_ip: str,
     body: dict = {},
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
     await _validate_host_ip(host_ip, db)
     result = await db.execute(select(Host).where(Host.ip == host_ip))
-    host = result.scalar_one_or_none()
+    host = result.scalars().first()
     payload = (
         _enrich_snapshot_body_for_windows(host, body) if host else dict(body or {})
     )
@@ -407,7 +407,7 @@ async def proxy_snap_rollback(
     host_ip: str,
     body: dict = {},
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
     return await _post(host_ip, "/snapshot/rollback", body, db)
 
@@ -417,7 +417,7 @@ async def proxy_snap_delete(
     host_ip: str,
     body: dict = {},
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
     return await _post(host_ip, "/snapshot/delete", body, db)
 
@@ -438,7 +438,7 @@ async def proxy_snap_restore_url(
     host_ip: str,
     body: dict = {},
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
     return await _post(host_ip, "/snapshot/restore_url", body, db)
 
@@ -449,7 +449,7 @@ async def proxy_snap_restore_upload(
     file: UploadFile = File(...),
     name: Optional[str] = Form(None),
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
     await _validate_host_ip(host_ip, db)
     try:
@@ -491,7 +491,7 @@ async def proxy_cleanup(
     host_ip: str,
     body: dict = {},
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
     return await _post(host_ip, "/cleanup", body, db)
 
@@ -516,7 +516,7 @@ async def proxy_snap_create_by_host(
     host_id: int,
     body: dict = {},
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
     host, url = await _agent_url_for_host_id(host_id, "/snapshot/create", db)
     payload = _enrich_snapshot_body_for_windows(host, body)
@@ -533,7 +533,7 @@ async def proxy_snap_precheck_by_host(
     host_id: int,
     body: dict = {},
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
     host, url = await _agent_url_for_host_id(host_id, "/snapshot/precheck", db)
     payload = _enrich_snapshot_body_for_windows(host, body)
@@ -550,7 +550,7 @@ async def proxy_snap_rollback_by_host(
     host_id: int,
     body: dict = {},
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
     _host, url = await _agent_url_for_host_id(host_id, "/snapshot/rollback", db)
     try:
@@ -566,7 +566,7 @@ async def proxy_snap_delete_by_host(
     host_id: int,
     body: dict = {},
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
     _host, url = await _agent_url_for_host_id(host_id, "/snapshot/delete", db)
     try:
@@ -615,7 +615,7 @@ async def proxy_snap_restore_url_by_host(
     host_id: int,
     body: dict = {},
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
     _host, url = await _agent_url_for_host_id(host_id, "/snapshot/restore_url", db)
     try:
@@ -632,7 +632,7 @@ async def proxy_snap_restore_upload_by_host(
     file: UploadFile = File(...),
     name: Optional[str] = Form(None),
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
     _host, url = await _agent_url_for_host_id(host_id, "/snapshot/restore_upload", db)
     try:
@@ -660,7 +660,7 @@ async def proxy_cleanup_by_host(
     host_id: int,
     body: dict = {},
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
     _host, url = await _agent_url_for_host_id(host_id, "/cleanup", db)
     try:
@@ -675,7 +675,7 @@ async def proxy_cleanup_by_host(
 async def proxy_clone_snapshot(
     body: dict,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
     source_ip = body.get("source_ip")
     target_ip = body.get("target_ip")
@@ -748,7 +748,7 @@ async def proxy_patch(
     host_ip: str,
     body: dict = {},
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
     await _ensure_patch_license(host_ip, db)
     return await _post(host_ip, "/patch/execute", body, db)
@@ -769,7 +769,7 @@ async def proxy_offline_install(
     host_ip: str,
     body: dict = {},
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
     return await _post(host_ip, "/offline/install", body, db)
 
@@ -778,7 +778,7 @@ async def proxy_offline_install(
 async def proxy_offline_clear(
     host_ip: str,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
     return await _post(host_ip, "/offline/clear", db=db)
 
@@ -800,13 +800,13 @@ async def proxy_ping(
     user: User = Depends(get_current_user),
 ):
     """Lightweight reachability + latency check."""
-    await _validate_host_ip(host_ip, db)
     import time
 
-    result = await db.execute(select(Host).where(Host.ip == host_ip))
-    ping_host = result.scalar_one_or_none()
-    urls = await _candidate_agent_urls(host_ip, "/health", db)
     try:
+        await _validate_host_ip(host_ip, db)
+        result = await db.execute(select(Host).where(Host.ip == host_ip))
+        ping_host = result.scalars().first()
+        urls = await _candidate_agent_urls(host_ip, "/health", db)
         async with httpx.AsyncClient(timeout=TIMEOUT) as c:
             last_error = ""
             for url in urls:
@@ -878,7 +878,7 @@ async def proxy_wsus_updates(
 async def proxy_wsus_install(
     host_ip: str,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
     await _ensure_patch_license(host_ip, db)
     return await _post(host_ip, "/wsus/install", db=db)
@@ -889,7 +889,7 @@ async def proxy_wsus_download(
     host_ip: str,
     body: dict = {},
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
     await _ensure_patch_license(host_ip, db)
     return await _post(host_ip, "/wsus/download", body, db=db)
@@ -900,7 +900,7 @@ async def proxy_wsus_install_selected(
     host_ip: str,
     body: dict = {},
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
     await _ensure_patch_license(host_ip, db)
     return await _post(host_ip, "/wsus/install", body, db=db)
@@ -922,7 +922,7 @@ async def proxy_uris(
     host_ip: str,
     body: dict = {},
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
     return await _post(host_ip, "/packages/uris", body, db)
 
@@ -933,7 +933,7 @@ async def server_patch(
     body: dict = {},
     background_tasks: BackgroundTasks = None,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
     """
     Initiates a server-side patch job. Returns a Job ID immediately.
@@ -941,7 +941,7 @@ async def server_patch(
     """
     # Verify host
     result = await db.execute(select(Host).where(Host.ip == host_ip))
-    host = result.scalar_one_or_none()
+    host = result.scalars().first()
     if not host:
         raise HTTPException(404, "Host not found")
     await _ensure_patch_license(host_ip, db)
@@ -1458,7 +1458,7 @@ async def _server_patch_worker(job_id: int, host_ip: str, body: dict):
 async def _ensure_patch_license(host_ip: str, db: AsyncSession):
     """Enforce license-based OS patching availability."""
     result = await db.execute(select(Host).where(Host.ip == host_ip))
-    host = result.scalar_one_or_none()
+    host = result.scalars().first()
     if not host:
         return
     os_name = (host.os or "").lower()
@@ -1614,7 +1614,7 @@ async def run_command(
     host_ip: str,
     body: RunCommandRequest,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
     """Execute a pre-approved read-only command on a registered host via its agent.
     Admin/operator only. Command must match the strict allowlist.
@@ -1671,7 +1671,7 @@ async def run_command_by_host_id(
     host_id: int,
     body: RunCommandRequest,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
     if not LIVE_CMD_ENABLED:
         raise HTTPException(403, "Live command execution is disabled on this server.")

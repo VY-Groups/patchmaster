@@ -6,6 +6,10 @@
 -- Drop old constraint
 ALTER TABLE bulk_patch_jobs DROP CONSTRAINT IF EXISTS uq_bulk_patch_job_name_created_at;
 
+-- Drop the current one too: re-running this script (models already created it)
+-- must not fail on "constraint already exists"
+ALTER TABLE bulk_patch_jobs DROP CONSTRAINT IF EXISTS uq_bulk_patch_job_name;
+
 -- Add new constraint on name only
 ALTER TABLE bulk_patch_jobs ADD CONSTRAINT uq_bulk_patch_job_name UNIQUE (name);
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One-shot Docker installer for PatchMaster production.
+# One-shot Docker installer for Patch-SecOps Solution production.
 
 set -euo pipefail
 
@@ -249,7 +249,7 @@ log "Starting Docker production stack..."
 docker compose -f docker-compose.prod.yml up -d --build
 
 echo ""
-echo -e "${BLUE}PatchMaster Docker install complete.${NC}"
+echo -e "${BLUE}Patch-SecOps Solution Docker install complete.${NC}"
 echo "  Frontend:   http://${SERVER_IP}:${FRONTEND_PORT}"
 echo "  Backend:    http://127.0.0.1:${BACKEND_PORT}/api/health"
 echo "  Admin user: ${PM_ADMIN_USER}"

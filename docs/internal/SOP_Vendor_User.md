@@ -55,7 +55,7 @@ Testing and POC licenses are intentionally flexible:
 
 ### Step 3: Collect The Verified Binding ID
 If the final production license must be hardware-bound:
-1. customer activates the testing or POC license in PatchMaster
+1. customer activates the testing or POC license in Patch-SecOps Solution
 2. customer shares the verified hardware or MAC ID with Vendor
 3. Vendor staff records that value in the customer record
 
@@ -75,7 +75,7 @@ Legacy `PM1-...` support still exists for transition and recovery scenarios, but
 - Do not paste raw license keys into Slack, Teams, or public ticket threads
 
 ### Step 6: Customer Activation
-The customer activates the key in PatchMaster. PatchMaster validates locally:
+The customer activates the key in Patch-SecOps Solution. Patch-SecOps Solution validates locally:
 1. signature
 2. encrypted payload integrity
 3. expiry
@@ -85,7 +85,7 @@ The customer activates the key in PatchMaster. PatchMaster validates locally:
 Vendor public internet exposure is not required for customer-side activation or validation.
 
 ### Step 7: Expiry And Renewal
-- **30 days prior:** customer sees warning state in PatchMaster
+- **30 days prior:** customer sees warning state in Patch-SecOps Solution
 - **0 days:** licensed operations become restricted until a valid license is activated
 
 Renewal process:
@@ -93,7 +93,7 @@ Renewal process:
 2. confirm renewed term, tier, and host entitlement
 3. keep or update the stored hardware binding ID if needed
 4. generate a new production license
-5. customer activates the new license in PatchMaster
+5. customer activates the new license in Patch-SecOps Solution
 
 ---
 
@@ -141,8 +141,8 @@ Do not generate a new one unless entitlement or binding details changed.
 
 ### Case B: Air-Gapped Installation
 Customer cannot use online activation.
-- PatchMaster licenses are offline-first
-- PatchMaster does not need to phone home to Vendor for license verification
+- Patch-SecOps Solution licenses are offline-first
+- Patch-SecOps Solution does not need to phone home to Vendor for license verification
 - send the key file and let the customer activate locally
 
 ### Case C: Emergency Extension

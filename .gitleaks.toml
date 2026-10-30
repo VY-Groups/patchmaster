@@ -1,0 +1,50 @@
+# Gitleaks configuration for PatchMaster.
+# Extends the default rule set; only adds path/fixture allowlists.
+# CI: gitleaks dir . --config .gitleaks.toml   (clean checkout = tracked source only)
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = """
+Local-only and gitignored trees: virtualenvs, node_modules, generated reports,
+AI tooling (.tools, .ua). None of these are tracked by git; excluded so local
+runs match a clean CI checkout. Tracked dirs (.planning, .agent) stay scanned.
+"""
+paths = [
+  '''(^|/)test-venv/''',
+  '''(^|/)\.tools/''',
+  '''(^|/)node_modules/''',
+  '''(^|/)reports/''',
+  '''(^|/)\.ua/''',
+  '''(^|/)\.build-venv/''',
+  '''(^|/)\.venv/''',
+  '''(^|/)agent/dist/''',
+  '''(^|/)vendor/venv''',
+  '''(^|/)packaging/debpkg/''',
+  '''(^|/)packaging/dist/''',
+  '''(^|/)\.pytest_cache/''',
+  '''(^|/)__pycache__/''',
+]
+
+[[allowlists]]
+description = """
+Gitignored local secret material (S0-1 F: never tracked; present on developer
+machines by design). Paths are exact file names so .env.example templates are
+still scanned.
+"""
+paths = [
+  '''(^|/)\.env$''',
+  '''(^|/)\.env\.local$''',
+  '''(^|/)license\.key$''',
+  '''(^|/)patchmaster-license-authority\.env$''',
+  '''(^|/)patchmaster-license-public\.env$''',
+]
+
+[[allowlists]]
+description = """
+backend/tests/conftest.py S0-1 fixture: fixed 64-hex test JWT_SECRET supplied to
+pytest only. Never valid outside the test process (auth refuses to boot without
+a real JWT_SECRET).
+"""
+regexes = ['''0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef''']

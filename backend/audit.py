@@ -1,4 +1,4 @@
-"""Security audit logging for PatchMaster Enterprise."""
+"""Security audit logging for Patch-SecOps Solution Enterprise."""
 
 import json
 import logging

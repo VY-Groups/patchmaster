@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 ###############################################################################
 #  PatchMaster by VYGROUP — Universal Agent Installer (Air-Gapped Friendly)
 #  This script is served by the Master node and installs the agent locally.

@@ -130,7 +130,7 @@ export default function ReportsOpsPage({ API, apiFetch, getToken, authHeaders, t
             </div>
             <div className="ops-hero-copy">
               <h3>Professional reporting for audit and compliance workflows</h3>
-              <p>Generate polished reports for executive review, detailed audit evidence, and downstream CSV analysis without leaving PatchMaster.</p>
+              <p>Generate polished reports for executive review, detailed audit evidence, and downstream CSV analysis without leaving Patch-SecOps Solution.</p>
             </div>
           </div>
           <div className="ops-chip-row">

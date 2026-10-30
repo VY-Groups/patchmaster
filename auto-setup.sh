@@ -1,5 +1,5 @@
 #!/bin/bash
-# PatchMaster Automated Setup Script for Linux/Mac
+# Patch-SecOps Solution Automated Setup Script for Linux/Mac
 # Handles all setup, dependencies, and common issues automatically
 
 set -e
@@ -290,7 +290,7 @@ EOF
     # Start all script
     cat > start-all.sh << 'EOF'
 #!/bin/bash
-echo "Starting PatchMaster services..."
+echo "Starting Patch-SecOps Solution services..."
 echo ""
 echo "Starting backend..."
 ./start-backend.sh &
@@ -324,7 +324,7 @@ EOF
 show_summary() {
     echo ""
     echo -e "${GREEN}==========================================${NC}"
-    echo -e "${GREEN}  PatchMaster Setup Complete!${NC}"
+    echo -e "${GREEN}  Patch-SecOps Solution Setup Complete!${NC}"
     echo -e "${GREEN}==========================================${NC}"
     echo ""
     echo -e "${GREEN}✓ Backend setup complete${NC}"
@@ -362,7 +362,7 @@ show_summary() {
 main() {
     echo ""
     echo -e "${CYAN}==========================================${NC}"
-    echo -e "${CYAN}  PatchMaster Automated Setup${NC}"
+    echo -e "${CYAN}  Patch-SecOps Solution Automated Setup${NC}"
     echo -e "${CYAN}==========================================${NC}"
     echo ""
     

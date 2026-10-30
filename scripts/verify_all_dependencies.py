@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-PatchMaster Comprehensive Dependency & Syntax Verification
+Patch-SecOps Solution Comprehensive Dependency & Syntax Verification
 Checks all requirements, dependencies, and build scripts across all platforms
 """
 
@@ -82,7 +82,7 @@ def check_requirements_file(filepath):
 
 def main():
     print("=" * 70)
-    print("PatchMaster Comprehensive Verification")
+    print("Patch-SecOps Solution Comprehensive Verification")
     print("=" * 70)
     print()
     

@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta name="description" content="PatchMaster Enterprise - Automated Patch Management">
-<meta property="og:title" content="PatchMaster Enterprise">
+<meta name="description" content="Patch-SecOps Solution Enterprise - Automated Patch Management">
+<meta property="og:title" content="Patch-SecOps Solution Enterprise">
 <meta property="og:description" content="Automated Patch Management">
 <meta property="og:type" content="website">
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PatchMaster And Vendor Master Diagrams</title>
+  <title>Patch-SecOps Solution And Vendor Master Diagrams</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
@@ -183,21 +183,21 @@
       <span class="badge badge-green">Argon2 Auth</span>
       <span class="badge badge-amber">Command Horizon UI</span>
     </div>
-    <h1>PatchMaster &amp; Vendor — Architecture Diagrams</h1>
-    <p>Full internal architectural reference covering PatchMaster operations, the Vendor licensing portal, agent lifecycle, monitoring, CI/CD, and the enterprise security layer. Updated for PostgreSQL 17 and Argon2 migrations.</p>
+    <h1>Patch-SecOps Solution &amp; Vendor — Architecture Diagrams</h1>
+    <p>Full internal architectural reference covering Patch-SecOps Solution operations, the Vendor licensing portal, agent lifecycle, monitoring, CI/CD, and the enterprise security layer. Updated for PostgreSQL 17 and Argon2 migrations.</p>
   </header>
 
   <main>
 
     <div class="diagram-block">
       <div class="diagram-header">
-        <h2><span class="num">1</span> PatchMaster System Architecture</h2>
+        <h2><span class="num">1</span> Patch-SecOps Solution System Architecture</h2>
         <p>Core subsystem map showing how agents, monitoring, CI/CD, and the database interlock with the FastAPI controller.</p>
       </div>
       <div class="diagram-body">
         <div class="mermaid">
 flowchart TD
-    A["Admin / Operator / Auditor"] --> B["PatchMaster Web UI"]
+    A["Admin / Operator / Auditor"] --> B["Patch-SecOps Solution Web UI"]
     B --> C["FastAPI Backend"]
 
     C --> D["Dashboard + Search"]
@@ -229,13 +229,13 @@ flowchart TD
 
     <div class="diagram-block">
       <div class="diagram-header">
-        <h2><span class="num">2</span> PatchMaster Feature Workspace Map</h2>
+        <h2><span class="num">2</span> Patch-SecOps Solution Feature Workspace Map</h2>
         <p>Operator-facing feature map matching the actual modules inside the application.</p>
       </div>
       <div class="diagram-body">
         <div class="mermaid">
 flowchart LR
-    A["PatchMaster"] --> B["Dashboard + Analytics"]
+    A["Patch-SecOps Solution"] --> B["Dashboard + Analytics"]
     A --> C["Hosts + Groups + Tags + Site"]
     A --> D["Patching + Software Distribution"]
     A --> E["Policies + Ring Rollout + Maintenance Windows"]
@@ -310,7 +310,7 @@ flowchart TD
     B --> C["Prometheus target discovery"]
     C --> D["Prometheus collects metrics"]
     D --> E["Grafana dashboards"]
-    E --> F["Monitoring page in PatchMaster"]
+    E --> F["Monitoring page in Patch-SecOps Solution"]
 
     G["Operator"] --> H["Testing Center"]
     H --> I["Frontend smoke checks"]
@@ -403,11 +403,11 @@ flowchart TD
     A["Create customer"] --> B["Create purchase record"]
     B --> C["Choose plan / tier / features"]
     C --> D["Issue POC or testing license"]
-    D --> E["Customer runs PatchMaster POC"]
+    D --> E["Customer runs Patch-SecOps Solution POC"]
     E --> F["Customer shares hardware or MAC ID"]
     F --> G["Vendor records binding ID + final terms"]
     G --> H["Generate final bound PM2 license"]
-    H --> I["Customer activates in PatchMaster"]
+    H --> I["Customer activates in Patch-SecOps Solution"]
     I --> J["Support, renewal, reissue continue"]
         </div>
       </div>
@@ -427,13 +427,13 @@ flowchart TD
     A --> E["Private authority bundle"]
     A --> F["Developer folder"]
 
-    B --> G["PatchMaster server install"]
+    B --> G["Patch-SecOps Solution server install"]
     C --> H["Vendor server install"]
     D --> I["Internal recovery only"]
     E --> J["Internal recovery only"]
     F --> K["Developer rebuild + test"]
 
-    G --> L["PatchMaster verifies + decrypts licenses"]
+    G --> L["Patch-SecOps Solution verifies + decrypts licenses"]
     H --> M["Vendor signs + encrypts licenses"]
     M --> L
         </div>
@@ -450,7 +450,7 @@ flowchart TD
 flowchart LR
     A["Vendor Server"] --> B["Issue PM2 license"]
     B --> C["Customer"]
-    C --> D["PatchMaster Server"]
+    C --> D["Patch-SecOps Solution Server"]
     D --> E["Verify + decrypt locally"]
 
     F["Vendor portal DB"] -. "no runtime dependency" .-> D
@@ -470,7 +470,7 @@ flowchart TD
     A["Customer product package"] --> B["Runtime verification + decryption bundle only"]
     C["Internal vendor tarball"] --> D["Private signing authority"]
     E["dist/private files"] --> F["Recovery only — never customer-facing"]
-    B --> G["PatchMaster can verify"]
+    B --> G["Patch-SecOps Solution can verify"]
     D --> H["Vendor can sign"]
     G --> I["Customers cannot mint new licenses"]
     H --> J["Signing limited to trusted operator/vendor side"]
@@ -492,7 +492,7 @@ flowchart TD
           </ol>
         </div>
         <div class="instr-card">
-          <strong>PatchMaster Server Install</strong>
+          <strong>Patch-SecOps Solution Server Install</strong>
           <ol>
             <li>Copy <code>dist/patchmaster-product-2.0.0.tar.gz</code> to server.</li>
             <li>Extract and run <code>bash packaging/install-bare.sh --with-monitoring</code>.</li>
@@ -513,7 +513,7 @@ flowchart TD
             <li>Issue testing license first for POC hardware binding.</li>
             <li>Record hardware/MAC ID in Vendor portal.</li>
             <li>Generate final <code>PM2-...</code> license from Vendor tool.</li>
-            <li>Paste license key into PatchMaster.</li>
+            <li>Paste license key into Patch-SecOps Solution.</li>
           </ol>
         </div>
       </div>

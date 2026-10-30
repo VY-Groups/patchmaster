@@ -1,7 +1,7 @@
-# PatchMaster Agent Capabilities Matrix
+# Patch-SecOps Solution Agent Capabilities Matrix
 
 ## Overview
-This document verifies that all PatchMaster agents are fully compatible with the PatchMaster controller and have complete feature parity across all supported platforms.
+This document verifies that all Patch-SecOps Solution agents are fully compatible with the Patch-SecOps Solution controller and have complete feature parity across all supported platforms.
 
 **Last Updated**: April 12, 2026  
 **Agent Version**: 2.0.0
@@ -306,7 +306,7 @@ All agents expose the following REST API endpoints:
 
 ### Overview
 
-PatchMaster implements **CVE-based security filtering** for platforms that don't have native security classification (Arch Linux, Alpine, FreeBSD). This provides a consistent security patching experience across all platforms.
+Patch-SecOps Solution implements **CVE-based security filtering** for platforms that don't have native security classification (Arch Linux, Alpine, FreeBSD). This provides a consistent security patching experience across all platforms.
 
 ### How It Works
 
@@ -420,7 +420,7 @@ PatchMaster implements **CVE-based security filtering** for platforms that don't
 
 ## Conclusion
 
-**All PatchMaster agents are fully compatible with the PatchMaster controller** and implement complete feature parity across all supported platforms. Each agent:
+**All Patch-SecOps Solution agents are fully compatible with the Patch-SecOps Solution controller** and implement complete feature parity across all supported platforms. Each agent:
 
 1. ✅ Implements the complete `BasePackageManager` interface
 2. ✅ Exposes all required REST API endpoints
@@ -430,7 +430,7 @@ PatchMaster implements **CVE-based security filtering** for platforms that don't
 6. ✅ Implements platform-specific optimizations
 7. ✅ Provides security features (auth, TLS, rate limiting)
 
-The FreeBSD agent is the newest addition and follows the same architecture and API contract as all other agents, ensuring seamless integration with existing PatchMaster deployments.
+The FreeBSD agent is the newest addition and follows the same architecture and API contract as all other agents, ensuring seamless integration with existing Patch-SecOps Solution deployments.
 
 ---
 

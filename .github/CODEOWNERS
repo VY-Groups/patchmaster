@@ -1,0 +1,20 @@
+# CODEOWNERS — plan.md S0-3 (normalize naming; add CODEOWNERS).
+#
+# Only verifiable GitHub identity on this repo today: @VY-Groups, the repo
+# owner account (verified via GitHub API 2026-10-25; the account is a user,
+# not an org, so no teams exist yet). Every commit in history is authored by
+# patchmastertool-ai. Expand these entries with per-person or team handles
+# once collaborators exist — do not invent handles; CODEOWNERS entries that
+# do not resolve to a real account are silently ignored by GitHub.
+
+*       @VY-Groups
+
+# Security-sensitive paths get an explicit (redundant today) line so the
+# ownership intent survives future expansion.
+/.github/            @VY-Groups
+/.gitleaks.toml      @VY-Groups
+/backend/auth.py     @VY-Groups
+/backend/api/cicd_secrets.py  @VY-Groups
+/packaging/          @VY-Groups
+/docker-compose.yml  @VY-Groups
+/docker-compose.prod.yml  @VY-Groups

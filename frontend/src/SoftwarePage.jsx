@@ -272,7 +272,7 @@ export default function SoftwarePage({ hosts, API, apiFetch }) {
         <h3>Software Distribution Workspace</h3>
         <p>
           Run operator-led package actions, maintain an approved self-service catalog, and queue installs for the next controlled shutdown or reboot.
-          This gives PatchMaster a real software distribution, kiosk, and shutdown-install workflow instead of just one-off package pushes.
+          This gives Patch-SecOps Solution a real software distribution, kiosk, and shutdown-install workflow instead of just one-off package pushes.
         </p>
       </div>
 
@@ -350,7 +350,7 @@ export default function SoftwarePage({ hosts, API, apiFetch }) {
               </button>
             </div>
             <p className="text-muted" style={{ marginTop: 10 }}>
-              Shutdown-queued actions are executed when PatchMaster triggers a reboot or shutdown on that host.
+              Shutdown-queued actions are executed when Patch-SecOps Solution triggers a reboot or shutdown on that host.
             </p>
           </div>
 

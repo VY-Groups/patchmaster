@@ -1,8 +1,8 @@
 #!/bin/bash
-# Verify PatchMaster Agent Installation
+# Verify Patch-SecOps Solution Agent Installation
 # Run this on the agent machine after installation
 
-echo "=== PatchMaster Agent Verification ==="
+echo "=== Patch-SecOps Solution Agent Verification ==="
 echo ""
 
 # Check if agent is installed

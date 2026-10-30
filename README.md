@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🛡️ PatchMaster Enterprise
+# 🛡️ Patch-SecOps Solution Enterprise
 ### *by VYGROUP*
 
 **Next-Generation, High-Availability Patch Management & Infrastructure Telemetry Platform**
@@ -25,9 +25,9 @@
 
 ## 📖 Executive Overview
 
-Managing highly distributed, heterogeneous, and secure environments demands more than standard package managers. **PatchMaster Enterprise** is a purpose-built infrastructure command center that unifies deployment strategies, mitigates system fragmentation, and enforces rigorous compliance policies globally — all from a single, license-gated administrative dashboard.
+Managing highly distributed, heterogeneous, and secure environments demands more than standard package managers. **Patch-SecOps Solution Enterprise** is a purpose-built infrastructure command center that unifies deployment strategies, mitigates system fragmentation, and enforces rigorous compliance policies globally — all from a single, license-gated administrative dashboard.
 
-Engineered from the ground up to operate on both standard cloud topologies and **fully air-gapped, dark-site deployments**, the platform employs a proprietary offline dependency bundling strategy. This allows PatchMaster to securely deliver mission-critical patches to completely isolated systems with zero exposure to external threat vectors.
+Engineered from the ground up to operate on both standard cloud topologies and **fully air-gapped, dark-site deployments**, the platform employs a proprietary offline dependency bundling strategy. This allows Patch-SecOps Solution to securely deliver mission-critical patches to completely isolated systems with zero exposure to external threat vectors.
 
 ---
 
@@ -35,7 +35,7 @@ Engineered from the ground up to operate on both standard cloud topologies and *
 
 ### 1. High-Level Topology
 
-PatchMaster uses a deeply decoupled, service-oriented architecture with asynchronous I/O throughout.
+Patch-SecOps Solution uses a deeply decoupled, service-oriented architecture with asynchronous I/O throughout.
 
 ```mermaid
 graph TD
@@ -185,7 +185,7 @@ frontend/src/
 | **ORM** | SQLAlchemy 2.0 async with `asyncpg` driver |
 | **Row-Level Locking** | `SELECT ... FOR UPDATE SKIP LOCKED` for deadlock-free task dispatch |
 | **Connection Pooling** | `pool_size=100` to handle thousands of simultaneous agent heartbeats |
-| **Migrations** | Managed via `backend/migrations/` |
+| **Migrations** | Alembic chain in `backend/alembic/` (baseline + the dated `backend/migrations/*.sql` scripts), applied automatically at startup |
 | **Multi-tenancy** | `MultiTenantMiddleware` for tenant-isolated data access |
 
 ---
@@ -342,10 +342,12 @@ bash build-rpm.sh                # RHEL/CentOS (.rpm)
 
 | Document | Description |
 |---|---|
+| [Installation](docs/public/INSTALL.md) | Full server setup guide (authoritative) |
+| [System Architecture](docs/internal/SYSTEM_ARCHITECTURE.md) | Authoritative architecture reference |
+| [Developer Guide](docs/internal/SOP_Vendor_Developer.md) | Developer onboarding and workflow |
+| [Production Hardening Runbook](docs/internal/PRODUCTION_HARDENING_RUNBOOK.md) | Operational troubleshooting and remediation |
 | [Release Notes v2.0.17](RELEASE_NOTES_2.0.1.md) | WebSocket fixes, agent registration improvements, security hardening |
 | [Offline Agent Installation](OFFLINE_AGENT_INSTALLATION.md) | Deploying to air-gapped / dark-site environments |
-| [Deployment Fixes & Runbooks](DEPLOYMENT_FIXES.md) | Operational troubleshooting and remediation steps |
-| [Installation Notes](INSTALLATION_NOTES.md) | Full server setup guide |
 
 ---
 
@@ -357,15 +359,15 @@ bash build-rpm.sh                # RHEL/CentOS (.rpm)
 
 ### ⚠️ Proprietary & Confidential
 
-This software and all associated source code, documentation, configurations, and assets are the **exclusive private property of the PatchMaster Team and its Respected Owner**.
+This software and all associated source code, documentation, configurations, and assets are the **exclusive private property of the Patch-SecOps Solution Team and its Respected Owner**.
 
 Unauthorized copying, redistribution, modification, reverse engineering, or commercial use of any part of this codebase — in whole or in part — is **strictly prohibited** without prior written consent from the owner.
 
-All rights reserved. © 2026 PatchMaster by VYGROUP.
+All rights reserved. © 2026 Patch-SecOps Solution by VYGROUP.
 
 ---
 
-**Built with ❤️ by the PatchMaster Engineering Team**
+**Built with ❤️ by the Patch-SecOps Solution Engineering Team**
 
 [![LinkedIn](https://img.shields.io/badge/Owner-Yash%20Kumar%20Dubey-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/yash-kumar-dubey-4b4926253/)
 

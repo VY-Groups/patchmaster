@@ -101,10 +101,10 @@ export default function HostTimelinePage({ hosts, API, apiFetch, CodeIcon }) {
       <div className="card">
         <div className="card-header">
           <h3>Event Stream</h3>
-          <span style={{ color: '#64748b', fontSize: 12 }}>{events.length} item{events.length === 1 ? '' : 's'}</span>
+          <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{events.length} item{events.length === 1 ? '' : 's'}</span>
         </div>
-        {!selectedHostId && <p style={{ color: '#64748b' }}>Select a host to view timeline activity.</p>}
-        {selectedHostId && !loading && !events.length && <p style={{ color: '#64748b' }}>No events found for this host and filter.</p>}
+        {!selectedHostId && <p style={{ color: 'var(--text-secondary)' }}>Select a host to view timeline activity.</p>}
+        {selectedHostId && !loading && !events.length && <p style={{ color: 'var(--text-secondary)' }}>No events found for this host and filter.</p>}
         <div style={{ display: 'grid', gap: 12 }}>
           {events.map(event => {
             const meta = typeMeta[event.event_type] || { label: event.event_type || 'Event', code: 'EV', tone: '#475569', bg: 'rgba(148,163,184,0.16)' };
@@ -116,25 +116,25 @@ export default function HostTimelinePage({ hosts, API, apiFetch, CodeIcon }) {
                   borderLeftWidth: 4,
                   borderRadius: 12,
                   padding: 14,
-                  background: '#fff',
+                  background: 'var(--card-bg)',
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start', marginBottom: 8 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                     <CodeIcon code={meta.code} tone={meta.tone} bg={meta.bg} size={18} />
                     <div>
-                      <div style={{ fontWeight: 700, color: '#0f172a' }}>{event.title}</div>
-                      <div style={{ fontSize: 12, color: '#64748b' }}>{meta.label}</div>
+                      <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{event.title}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{meta.label}</div>
                     </div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <span className={`badge badge-${event.severity === 'danger' ? 'danger' : event.severity === 'warning' ? 'warning' : event.severity === 'success' ? 'success' : 'info'}`}>{event.severity}</span>
-                    <div style={{ fontSize: 12, color: '#64748b', marginTop: 6 }}>{new Date(event.created_at).toLocaleString()}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 6 }}>{new Date(event.created_at).toLocaleString()}</div>
                   </div>
                 </div>
-                {event.ref_id && <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>Reference: {event.ref_id}</div>}
+                {event.ref_id && <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>Reference: {event.ref_id}</div>}
                 {event.detail && (
-                  <pre style={{ margin: 0, background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: 12, fontSize: 12, color: '#334155', overflowX: 'auto', whiteSpace: 'pre-wrap' }}>
+                  <pre style={{ margin: 0, background: '#f8fafc', border: '1px solid var(--border-color)', borderRadius: 8, padding: 12, fontSize: 12, color: '#334155', overflowX: 'auto', whiteSpace: 'pre-wrap' }}>
                     {JSON.stringify(event.detail, null, 2)}
                   </pre>
                 )}

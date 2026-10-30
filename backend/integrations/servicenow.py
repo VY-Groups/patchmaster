@@ -254,7 +254,7 @@ class ServiceNowIntegration:
             return False
 
 
-# Helper functions for common PatchMaster events
+# Helper functions for common Patch-SecOps Solution events
 async def create_patch_failure_incident(
     integration: ServiceNowIntegration,
     host_id: int,

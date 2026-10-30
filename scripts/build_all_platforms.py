@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-PatchMaster Platform Build Suite
+Patch-SecOps Solution Platform Build Suite
 Builds agent packages for all supported platforms using Docker
 """
 import subprocess
@@ -124,7 +124,7 @@ def build_platform_agent(platform_name, config, project_path):
 
 def main():
     print("=" * 70)
-    print(f"PatchMaster Platform Build Suite v{VERSION}")
+    print(f"Patch-SecOps Solution Platform Build Suite v{VERSION}")
     print("Builds agent packages using Docker containers")
     print("=" * 70)
     print()

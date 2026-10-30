@@ -20,7 +20,8 @@ CREATE INDEX IF NOT EXISTS idx_hosts_is_online ON hosts (is_online);
 CREATE INDEX IF NOT EXISTS idx_hosts_reboot_required ON hosts (reboot_required);
 
 -- Composite index for CVE queries (severity + status)
-CREATE INDEX IF NOT EXISTS idx_host_cve_status_severity ON host_cve (status, cve_id);
+-- (the table is host_cves; host_cve was a stale name that made this script fail)
+CREATE INDEX IF NOT EXISTS idx_host_cve_status_severity ON host_cves (status, cve_id);
 
 -- Index for job status queries (used frequently in job lists and dashboard)
 CREATE INDEX IF NOT EXISTS idx_patch_jobs_status_created ON patch_jobs (status, created_at DESC);

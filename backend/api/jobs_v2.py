@@ -446,6 +446,12 @@ async def rollback_job(
 @router.websocket("/ws/job/{job_id}")
 async def job_status_ws(websocket: WebSocket, job_id: str):
     await websocket.accept()
+    # F5: job status streams host/patch data - authenticate like /api/notifications/ws.
+    from api.notifications import _resolve_websocket_user
+
+    if not await _resolve_websocket_user(websocket):
+        await websocket.close(code=4401)
+        return
     if not job_id.isdigit():
         await websocket.send_json({"error": "Invalid job ID"})
         await websocket.close()

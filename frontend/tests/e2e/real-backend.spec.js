@@ -22,7 +22,7 @@ test.describe('authenticated real backend smoke', () => {
     } else {
       await page.getByPlaceholder(/e\.g\. admin/i).fill(REAL_USER);
       await page.locator('input[type="password"]').first().fill(REAL_PASSWORD);
-      await page.getByRole('button', { name: /Sign In/i }).click();
+      await page.getByRole('button', { name: 'Sign In', exact: true }).click();
       await expect(logoutButton).toBeVisible({ timeout: 20000 });
     }
 

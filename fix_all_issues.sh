@@ -1,6 +1,6 @@
 #!/bin/bash
-# Comprehensive fix for PatchMaster installation issues
-# Run this on the Ubuntu PatchMaster server
+# Comprehensive fix for Patch-SecOps Solution installation issues
+# Run this on the Ubuntu Patch-SecOps Solution server
 
 set -e
 
@@ -10,7 +10,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 echo -e "${GREEN}=================================="
-echo "PatchMaster - Comprehensive Fix"
+echo "Patch-SecOps Solution - Comprehensive Fix"
 echo "==================================${NC}"
 echo ""
 
@@ -101,7 +101,7 @@ fi
 echo ""
 
 # Fix 4: Restart backend service
-echo -e "${YELLOW}Fix 4: Restarting PatchMaster backend...${NC}"
+echo -e "${YELLOW}Fix 4: Restarting Patch-SecOps Solution backend...${NC}"
 systemctl daemon-reload
 systemctl restart patchmaster-backend 2>/dev/null || true
 sleep 3

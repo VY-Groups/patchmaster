@@ -182,7 +182,7 @@ def make_table(rows, col_widths=None):
 def add_cover(story, title, audience, purpose, capability_blurb=None):
     story.extend([
         Spacer(1, 28),
-        Paragraph("PatchMaster by VYGROUP", styles["GuideTitle"]),
+        Paragraph("Patch-SecOps Solution by VYGROUP", styles["GuideTitle"]),
         Paragraph(escape(title), styles["GuideTitle"]),
         Paragraph(escape(f"Audience: {audience}"), styles["GuideSubtitle"]),
         Paragraph(escape(f"Prepared on {TODAY} | Product version {VERSION}"), styles["GuideSubtitle"]),
@@ -208,7 +208,7 @@ def draw_header_footer(canvas, doc):
     canvas.drawString(18 * mm, height - 12 * mm, doc.title)
     canvas.setFillColor(colors.HexColor("#475569"))
     canvas.setFont("Helvetica", 8.5)
-    canvas.drawString(18 * mm, 10 * mm, f"PatchMaster by VYGROUP | {TODAY}")
+    canvas.drawString(18 * mm, 10 * mm, f"Patch-SecOps Solution by VYGROUP | {TODAY}")
     canvas.drawRightString(width - 18 * mm, 10 * mm, f"Page {doc.page}")
     canvas.restoreState()
 
@@ -219,7 +219,7 @@ def developer_story():
         story,
         "Developer and Release Guide",
         "Backend, Frontend, DevOps, QA, Release Engineering",
-        "This guide explains how PatchMaster is structured, how the release is built and validated, what was fixed during monitoring hardening, and what must be checked before a vendor rebuild is promoted.",
+        "This guide explains how Patch-SecOps Solution is structured, how the release is built and validated, what was fixed during monitoring hardening, and what must be checked before a vendor rebuild is promoted.",
         "Launch recommendation: ready for a controlled vendor rebuild and UAT, but still do one fresh-VM acceptance pass before public release.",
     )
 
@@ -227,7 +227,7 @@ def developer_story():
         "1. Executive Launch Readiness",
         body=[
             "The repository is in a much stronger state than it was at the start of the monitoring investigation. Backend tests pass, the frontend builds successfully, and the major Grafana/Prometheus provisioning, embed, and datasource issues have been corrected in code.",
-            "Based on the evidence gathered so far, PatchMaster is ready for a vendor rebuild and final acceptance testing. I would treat it as launch-candidate ready, not blindly public-ready, until the rebuilt artifact is installed on a fresh target and the release checklist below is completed end to end."
+            "Based on the evidence gathered so far, Patch-SecOps Solution is ready for a vendor rebuild and final acceptance testing. I would treat it as launch-candidate ready, not blindly public-ready, until the rebuilt artifact is installed on a fresh target and the release checklist below is completed end to end."
         ],
         bullets=[
             "Validated in this workspace: backend test suite passed (30 tests).",
@@ -241,7 +241,7 @@ def developer_story():
 
     story.extend(section(
         "2. Product Architecture",
-        body="PatchMaster ships as a mixed control plane: a FastAPI backend, React frontend, PostgreSQL database, Python-based agents, and an integrated Prometheus/Grafana monitoring stack. The user-facing product and the internal vendor tooling share the repository but are packaged separately."
+        body="Patch-SecOps Solution ships as a mixed control plane: a FastAPI backend, React frontend, PostgreSQL database, Python-based agents, and an integrated Prometheus/Grafana monitoring stack. The user-facing product and the internal vendor tooling share the repository but are packaged separately."
     ))
     story.append(make_table([
         ["Layer", "Location", "Role"],
@@ -347,7 +347,7 @@ def support_story():
         story,
         "Support Runbook",
         "L1, L2, L3, and L4 support teams",
-        "This guide gives each support tier a clear operating lane, standard diagnostics, escalation rules, and known-good remediation patterns for PatchMaster deployments.",
+        "This guide gives each support tier a clear operating lane, standard diagnostics, escalation rules, and known-good remediation patterns for Patch-SecOps Solution deployments.",
         "Use this as the day-to-day incident playbook. It is designed to reduce bounce between tiers and make evidence handoff cleaner.",
     )
 
@@ -409,7 +409,7 @@ curl -fsS http://127.0.0.1:9090/api/monitoring/embed/prometheus/-/healthy'''
         ],
         code='''sudo journalctl -u grafana-server -n 80 --no-pager -l
 sudo grep -R -n "isDefault" /etc/grafana/provisioning/datasources
-curl -u admin:patchmaster -s http://127.0.0.1:3001/api/dashboards/uid/patchmaster-overview
+curl -u admin:$GF_ADMIN_PASSWORD -s http://127.0.0.1:3001/api/dashboards/uid/patchmaster-overview
 echo
 curl -g 'http://127.0.0.1:9090/api/monitoring/embed/prometheus/api/v1/query?query=patchmaster_hosts_total' '''
     ))
@@ -467,12 +467,12 @@ def consumer_story():
         story,
         "Customer User Guide",
         "System administrators, DevOps teams, IT operations, security teams",
-        "This guide explains how to operate PatchMaster in day-to-day use, what the platform is good at, and what to expect from major workflows such as onboarding, patching, monitoring, reporting, and rollback.",
-        "Capability brief: PatchMaster centralizes Linux and Windows patching, software rollout, compliance reporting, monitoring, backups, and offline-ready operations from a single control plane.",
+        "This guide explains how to operate Patch-SecOps Solution in day-to-day use, what the platform is good at, and what to expect from major workflows such as onboarding, patching, monitoring, reporting, and rollback.",
+        "Capability brief: Patch-SecOps Solution centralizes Linux and Windows patching, software rollout, compliance reporting, monitoring, backups, and offline-ready operations from a single control plane.",
     )
 
     story.extend(section(
-        "1. What PatchMaster Can Do",
+        "1. What Patch-SecOps Solution Can Do",
         bullets=[
             "Manage Linux and Windows patching from one dashboard.",
             "Group hosts and execute jobs in bulk or by maintenance window.",
@@ -482,13 +482,13 @@ def consumer_story():
             "Support offline and air-gapped workflows through the master node.",
             "Create backups, snapshots, and rollbacks around risky changes."
         ],
-        note="Very brief capability summary: PatchMaster is strongest as an operator-facing patch and systems operations hub, not just a patch button."
+        note="Very brief capability summary: Patch-SecOps Solution is strongest as an operator-facing patch and systems operations hub, not just a patch button."
     ))
 
     story.extend(section(
         "2. First Use Checklist",
         bullets=[
-            "Log in to the PatchMaster web UI using the admin or delegated operator account.",
+            "Log in to the Patch-SecOps Solution web UI using the admin or delegated operator account.",
             "Upload and validate the license so the correct features appear.",
             "Open Onboarding and copy the platform-appropriate install command for your hosts.",
             "Wait for hosts to appear in the inventory before expecting dashboards to show real data.",
@@ -544,7 +544,7 @@ def consumer_story():
     story.extend(section(
         "7. What To Tell Your Teams",
         bullets=[
-            "PatchMaster is capable, but it still depends on good maintenance windows, healthy agents, and accurate system time.",
+            "Patch-SecOps Solution is capable, but it still depends on good maintenance windows, healthy agents, and accurate system time.",
             "No data is not always a fault; on a fresh install it often means the system is clean and waiting for hosts.",
             "Monitoring, compliance, and reporting value grows as more hosts are enrolled and patch activity accumulates."
         ]
@@ -583,9 +583,9 @@ def build_pdf(filename, title, story_fn):
 
 def main():
     outputs = [
-        build_pdf("PatchMaster_Developer_Guide_v2.0.0.pdf", "PatchMaster Developer Guide", developer_story),
-        build_pdf("PatchMaster_Support_Runbook_v2.0.0.pdf", "PatchMaster Support Runbook", support_story),
-        build_pdf("PatchMaster_Customer_User_Guide_v2.0.0.pdf", "PatchMaster Customer User Guide", consumer_story),
+        build_pdf("PatchMaster_Developer_Guide_v2.0.0.pdf", "Patch-SecOps Solution Developer Guide", developer_story),
+        build_pdf("PatchMaster_Support_Runbook_v2.0.0.pdf", "Patch-SecOps Solution Support Runbook", support_story),
+        build_pdf("PatchMaster_Customer_User_Guide_v2.0.0.pdf", "Patch-SecOps Solution Customer User Guide", consumer_story),
     ]
     for output in outputs:
         print(output)

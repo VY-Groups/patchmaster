@@ -39,13 +39,13 @@ async def ensure_bootstrap_users() -> dict[str, Any]:
     admin = _user_config(
         "PM_ADMIN",
         default_email="admin@patchmaster.local",
-        default_full_name="PatchMaster Administrator",
+        default_full_name="Patch-SecOps Solution Administrator",
         role=UserRole.admin,
     )
     smoke = _user_config(
         "PM_SMOKE",
         default_email="qa-smoke@patchmaster.local",
-        default_full_name="PatchMaster QA Smoke",
+        default_full_name="Patch-SecOps Solution QA Smoke",
         role=UserRole.operator,
     )
 

@@ -118,33 +118,43 @@ async def get_db():
     async with session_maker() as session:
         try:
             yield session
-            await session.commit()
         except Exception:
             await session.rollback()
             raise
+        else:
+            # Commit only if no exception occurred during the request.
+            # If the transaction is already invalid (e.g. a failed query was
+            # swallowed by an endpoint), roll back instead of raising
+            # PendingRollbackError. Endpoints that perform writes are expected
+            # to commit explicitly; this is a safety net for legacy callers.
+            try:
+                await session.commit()
+            except Exception:
+                try:
+                    await session.rollback()
+                except Exception:
+                    pass
+                raise
 
 
 async def init_db():
-    """Create all tables on startup."""
+    """Bring the database to the current schema (plan.md S0-4).
+
+    One migration tool replaces ad hoc create_all plus the manually applied
+    dated SQL scripts: alembic runs the baseline chain (schema_migrations),
+    then additive_reconcile closes any gap between the models and an older
+    database by adding what is missing - never dropping.
+    """
     db_engine = get_engine()
     if db_engine is None:
         raise RuntimeError(
             "Database not configured. Set DATABASE_URL environment variable."
         )
-    async with db_engine.begin() as conn:
-        from models import db_models  # noqa: F401
 
-        try:
-            await conn.run_sync(Base.metadata.create_all, checkfirst=True)
-            print("Database schema initialized successfully")
-        except Exception as e:
-            # Handle duplicate index/table errors gracefully during upgrades
-            error_msg = str(e).lower()
-            if "already exists" in error_msg or "duplicate" in error_msg:
-                print(f"Warning: Some database objects already exist (likely from previous installation)")
-                print("Database schema verification complete - continuing with existing schema")
-                # Continue - tables/indexes already exist from previous install
-            else:
-                # Re-raise other errors
-                print(f"Error initializing database: {e}")
-                raise
+    from schema_migrations import migrate_engine_to_head
+
+    added = await migrate_engine_to_head(db_engine)
+
+    created = sum(len(objects) for objects in added.values())
+    detail = f" (+{created} objects added)" if created else ""
+    print(f"Database schema migrated to head{detail}")

@@ -1,4 +1,4 @@
-"""JWT authentication & RBAC for PatchMaster — enterprise hardened."""
+"""JWT authentication & RBAC for Patch-SecOps Solution — enterprise hardened."""
 
 import os
 import hashlib
@@ -17,7 +17,36 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from database import get_db
 from models.db_models import User, UserRole, RefreshToken
 
-SECRET_KEY = os.getenv("JWT_SECRET", "patchmaster-change-me-in-production-32chars!")
+# Secrets that have shipped as defaults in this repo; all must be rejected so a
+# copy-paste deployment can never mint forgeable tokens (plan S0-1 fail-closed).
+_PLACEHOLDER_SECRETS = frozenset(
+    {
+        "patchmaster-change-me-in-production-32chars!",  # old auth.py default
+        "change-me-to-a-secure-random-string",          # old docker-compose default
+        "5e91c5c9d0b5494f8c2a4c0c8f9f5a9d6b8f184f3e30e0c9e225a34a8c9f0f5b",  # old env.example
+    }
+)
+
+
+def _load_jwt_secret() -> str:
+    """No default, no placeholder, no short secret: refuse to start instead."""
+    secret = os.getenv("JWT_SECRET", "").strip()
+    if (
+        not secret
+        or len(secret) < 32
+        or secret in _PLACEHOLDER_SECRETS
+        or secret.lower().startswith(("changeme", "change-me", "replace-me"))
+    ):
+        raise RuntimeError(
+            "JWT_SECRET is unset or is a known placeholder and Patch-SecOps Solution "
+            "refuses to start. Generate one with "
+            'python -c "import secrets; print(secrets.token_hex(32))" '
+            "and set JWT_SECRET in .env."
+        )
+    return secret
+
+
+SECRET_KEY = _load_jwt_secret()
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = int(
     os.getenv("TOKEN_EXPIRE_MINUTES", "60")
@@ -30,22 +59,6 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 oauth2_scheme_optional = OAuth2PasswordBearer(
     tokenUrl="/api/auth/login", auto_error=False
 )
-
-
-# ── PBKDF2-derived Fernet key for encrypting sensitive DB columns ──
-
-
-def _derive_fernet_key() -> bytes:
-    """Derive a 32-byte URL-safe base64 key from PM_SECRET_KEY using PBKDF2-HMAC-SHA256.
-    This is much stronger than using the raw env var directly as an AES key."""
-    import base64
-
-    raw_key = os.getenv(
-        "PM_SECRET_KEY", "ZGV2LW9ubHktZmVybmV0LWtleS1kb25vdC11c2UtaW4tcHJvZA=="
-    ).encode()
-    salt = b"patchmaster-fernet-v1"  # fixed salt (key derivation, not password hashing)
-    dk = hashlib.pbkdf2_hmac("sha256", raw_key, salt, iterations=200_000, dklen=32)
-    return base64.urlsafe_b64encode(dk)
 
 
 def hash_password(password: str) -> str:
@@ -179,8 +192,9 @@ async def get_current_user(
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        # Reject refresh tokens used as access tokens
-        if payload.get("type") == "refresh":
+        # Only access tokens are credentials: reject refresh tokens AND any
+        # purpose-specific token (e.g. password-reset) — plan S0-1 token handling.
+        if payload.get("type") != "access":
             raise cred_exc
         username: str = payload.get("sub")
         if not username:
@@ -204,7 +218,7 @@ async def get_current_user_optional(
         return None
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        if payload.get("type") == "refresh":
+        if payload.get("type") != "access":
             return None
         username: str = payload.get("sub")
         if not username:

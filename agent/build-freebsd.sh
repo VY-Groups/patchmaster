@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 ###############################################################################
 # PatchMaster Agent - FreeBSD Package Builder
 # Creates .txz package for FreeBSD

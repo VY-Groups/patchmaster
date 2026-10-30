@@ -77,8 +77,8 @@ export default function DashboardOpsPage({
           >
             <AppIcon name="dashboard" size={34} />
           </span>
-          <h2 style={{ fontSize: '2rem', marginBottom: 12, color: '#0f172a' }}>Welcome to PatchMaster</h2>
-          <p style={{ fontSize: '1.05rem', color: '#64748b', maxWidth: 620, margin: '0 auto 28px', lineHeight: 1.75 }}>
+          <h2 style={{ fontSize: '2rem', marginBottom: 12, color: 'var(--text-primary)' }}>Welcome to Patch-SecOps Solution</h2>
+          <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)', maxWidth: 620, margin: '0 auto 28px', lineHeight: 1.75 }}>
             No agents are registered yet. Once hosts are online, this command center will show live compliance posture, CVE exposure, patch velocity, and remediation workload.
           </p>
           <button className="btn btn-primary btn-lg" onClick={() => setPage('onboarding')}>
@@ -128,7 +128,7 @@ export default function DashboardOpsPage({
         title: 'High operational risk',
         description: 'Critical exposure or weak patch hygiene is pulling the fleet into an at-risk state. Prioritize vulnerable hosts and restart backlog.',
         tone: '#b91c1c',
-        bg: 'linear-gradient(145deg, #fef2f2, #fff7f7)',
+        bg: 'linear-gradient(145deg, #fef2f2, var(--card-bg)7f7)',
         border: '#fca5a5',
       }
     : riskScore >= 55
@@ -136,7 +136,7 @@ export default function DashboardOpsPage({
           title: 'Mixed operating posture',
           description: 'The estate is generally stable, but risk is concentrated in a subset of hosts. Use the queues below to focus remediation.',
           tone: '#b45309',
-          bg: 'linear-gradient(145deg, #fffbeb, #fffdf5)',
+          bg: 'linear-gradient(145deg, var(--card-bg)beb, var(--card-bg)df5)',
           border: '#fcd34d',
         }
       : {
@@ -235,17 +235,18 @@ export default function DashboardOpsPage({
         </div>
         <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', padding: '16px 0' }}>
           {[
-            { key: 'windows', label: 'Windows', icon: '🪟', color: '#0078d4' },
-            { key: 'debian', label: 'Debian/Ubuntu', icon: '🐧', color: '#d70a53' },
-            { key: 'rhel', label: 'RHEL/RPM', icon: '🎩', color: '#ee0000' },
-            { key: 'arch', label: 'Arch Linux', icon: '🏔️', color: '#1793d1' },
-            { key: 'opensuse', label: 'openSUSE', icon: '🦎', color: '#73ba25' },
-            { key: 'alpine', label: 'Alpine', icon: '⛰️', color: '#0d597f' },
-            { key: 'freebsd', label: 'FreeBSD', icon: '😈', color: '#ab2b28' },
-            { key: 'other', label: 'Other', icon: '📦', color: '#64748b' },
+            { key: 'windows', label: 'Windows', icon: 'windows', color: '#0078d4' },
+            { key: 'debian', label: 'Debian/Ubuntu', icon: 'linux', color: '#d70a53' },
+            { key: 'rhel', label: 'RHEL/RPM', icon: 'rhel', color: '#ee0000' },
+            { key: 'arch', label: 'Arch Linux', icon: 'arch', color: '#1793d1' },
+            { key: 'opensuse', label: 'openSUSE', icon: 'opensuse', color: '#73ba25' },
+            { key: 'alpine', label: 'Alpine', icon: 'alpine', color: '#0d597f' },
+            { key: 'freebsd', label: 'FreeBSD', icon: 'freebsd', color: '#ab2b28' },
+            { key: 'other', label: 'Other', icon: 'other', color: 'var(--text-secondary)' },
           ].map(platform => {
             const count = platformCounts[platform.key] || 0;
-            const percentage = totalHosts > 0 ? Math.round((count / totalHosts) * 100) : 0;
+            const loadedTotal = Object.values(platformCounts).reduce((a, b) => a + b, 0) || 1;
+            const percentage = Math.round((count / loadedTotal) * 100);
             
             return (
               <div
@@ -254,25 +255,25 @@ export default function DashboardOpsPage({
                   flex: '1 1 200px',
                   minWidth: 180,
                   padding: 16,
-                  border: '1px solid #e2e8f0',
+                  border: '1px solid var(--border-color)',
                   borderRadius: 8,
-                  background: count > 0 ? '#ffffff' : '#f8fafc',
+                  background: count > 0 ? 'var(--card-bg)' : '#f8fafc',
                   opacity: count > 0 ? 1 : 0.6,
                   transition: 'all 0.2s',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                  <span style={{ fontSize: 24 }}>{platform.icon}</span>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{platform.label}</span>
+                  <span style={{ fontSize: 18, fontWeight: 700, color: platform.color }}>{platform.key.charAt(0).toUpperCase()}</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{platform.label}</span>
                 </div>
                 <div style={{ fontSize: 28, fontWeight: 700, color: platform.color, marginBottom: 4 }}>
                   {count}
                 </div>
-                <div style={{ fontSize: 12, color: '#64748b' }}>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
                   {percentage}% of fleet
                 </div>
                 {count > 0 && (
-                  <div style={{ marginTop: 8, height: 4, background: '#e2e8f0', borderRadius: 2, overflow: 'hidden' }}>
+                  <div style={{ marginTop: 8, height: 4, background: 'var(--border-color)', borderRadius: 2, overflow: 'hidden' }}>
                     <div style={{ height: '100%', background: platform.color, width: `${percentage}%`, transition: 'width 0.3s' }} />
                   </div>
                 )}
@@ -280,9 +281,9 @@ export default function DashboardOpsPage({
             );
           })}
         </div>
-        <div style={{ padding: '12px 0 0', borderTop: '1px solid #e2e8f0', marginTop: 8 }}>
-          <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>
-            ✅ <strong>100% Platform Coverage</strong> - PatchMaster supports all major operating systems with full feature parity
+        <div style={{ padding: '12px 0 0', borderTop: '1px solid var(--border-color)', marginTop: 8 }}>
+          <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: 0 }}>
+            ✅ <strong>{Object.values(platformCounts).filter(c => c > 0).length} platforms active</strong> - Distribution based on loaded fleet data
           </p>
         </div>
       </div>

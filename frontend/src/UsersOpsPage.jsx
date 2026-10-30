@@ -227,7 +227,7 @@ export default function UsersOpsPage({ API, apiFetch, AppIcon }) {
           { label: 'Enabled accounts', value: activeUsers, sub: 'users currently allowed to sign in', icon: 'users', color: '#2563eb', bg: 'rgba(37,99,235,0.12)' },
           { label: 'Custom overrides', value: customOverrideUsers, sub: 'accounts with permission deltas from role defaults', icon: 'shield', color: '#d97706', bg: 'rgba(245,158,11,0.14)' },
           { label: 'Admin coverage', value: roleMix.admin, sub: 'accounts with highest privilege tier', icon: 'key', color: '#dc2626', bg: 'rgba(239,68,68,0.12)' },
-          { label: 'Feature matrix', value: safeAllFeatures.length, sub: 'permissions tracked by PatchMaster RBAC', icon: 'sliders', color: '#06b6d4', bg: 'rgba(139,92,246,0.12)' },
+          { label: 'Feature matrix', value: safeAllFeatures.length, sub: 'permissions tracked by Patch-SecOps Solution RBAC', icon: 'sliders', color: '#06b6d4', bg: 'rgba(139,92,246,0.12)' },
         ].map((card) => (
           <div key={card.label} className="ops-summary-card">
             <div className="ops-summary-head">
@@ -536,7 +536,7 @@ export default function UsersOpsPage({ API, apiFetch, AppIcon }) {
             <h3>How AD Login Works</h3>
             <ol style={{ color: '#64748b', lineHeight: 2, paddingLeft: 20 }}>
               <li>User enters their AD username and password on the login page and clicks <strong>Sign in with AD</strong>.</li>
-              <li>PatchMaster binds to the LDAP server with the service account and searches for the user.</li>
+              <li>Patch-SecOps Solution binds to the LDAP server with the service account and searches for the user.</li>
               <li>The user's own credentials are verified against the directory.</li>
               <li>Their AD group membership is checked against the configured Admin/Operator group DNs to assign a role.</li>
               <li>A local account is created or updated automatically — no manual user creation needed.</li>

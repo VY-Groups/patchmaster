@@ -191,7 +191,7 @@ def install(self, packages, local=False, security_only=False, ...):
 
 ### User Flow
 
-1. **User Action**: Clicks "Install Security Updates Only" in PatchMaster UI
+1. **User Action**: Clicks "Install Security Updates Only" in Patch-SecOps Solution UI
 2. **Backend Request**: Sends patch request with `security_only=true`
 3. **Agent Processing**:
    - Gets list of upgradable packages

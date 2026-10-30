@@ -1,8 +1,8 @@
-# 🐧 PatchMaster Arch Linux Deployment Guide
+# 🐧 Patch-SecOps Solution Arch Linux Deployment Guide
 
 ## 📋 Overview
 
-PatchMaster now fully supports Arch Linux and Arch-based distributions (Manjaro, EndeavourOS, Garuda, etc.) through the new PacmanManager implementation. This guide covers installation, configuration, and best practices for Arch Linux environments.
+Patch-SecOps Solution now fully supports Arch Linux and Arch-based distributions (Manjaro, EndeavourOS, Garuda, etc.) through the new PacmanManager implementation. This guide covers installation, configuration, and best practices for Arch Linux environments.
 
 ---
 
@@ -35,7 +35,7 @@ sudo pacman -S prometheus grafana
 
 ### Agent Installation
 
-#### Method 1: From PatchMaster Controller
+#### Method 1: From Patch-SecOps Solution Controller
 
 ```bash
 # Download and run the agent installer
@@ -88,7 +88,7 @@ Create `/etc/systemd/system/patchmaster-agent.service`:
 
 ```ini
 [Unit]
-Description=PatchMaster Agent
+Description=Patch-SecOps Solution Agent
 After=network.target
 
 [Service]
@@ -118,7 +118,7 @@ sudo systemctl status patchmaster-agent
 
 ### Supported Operations
 
-| Operation | Command | PatchMaster Support |
+| Operation | Command | Patch-SecOps Solution Support |
 |-----------|---------|---------------------|
 | List installed | `pacman -Q` | ✅ Yes |
 | List upgradable | `pacman -Qu` | ✅ Yes |
@@ -157,7 +157,7 @@ curl -X POST http://localhost:8080/software/manage \
 
 ### Snapshot Strategies
 
-PatchMaster supports multiple snapshot strategies on Arch Linux:
+Patch-SecOps Solution supports multiple snapshot strategies on Arch Linux:
 
 #### 1. Package List Snapshot (Default)
 
@@ -184,7 +184,7 @@ curl -X POST http://localhost:8080/snapshot/rollback \
 
 #### 2. Btrfs Snapshot (If Available)
 
-If your root filesystem is Btrfs, PatchMaster can create filesystem snapshots.
+If your root filesystem is Btrfs, Patch-SecOps Solution can create filesystem snapshots.
 
 ```bash
 # Check if Btrfs is available
@@ -219,7 +219,7 @@ curl -X POST http://localhost:8080/snapshot/create \
 
 ## 🔄 Reboot Detection
 
-PatchMaster automatically detects when a reboot is required on Arch Linux by:
+Patch-SecOps Solution automatically detects when a reboot is required on Arch Linux by:
 
 1. Comparing running kernel version with installed kernel version
 2. Checking if systemd needs restart
@@ -306,7 +306,7 @@ sudo ./install-agent.sh
 
 ### AUR (Arch User Repository)
 
-✅ **FULLY SUPPORTED** - PatchMaster now has complete AUR support via yay or paru!
+✅ **FULLY SUPPORTED** - Patch-SecOps Solution now has complete AUR support via yay or paru!
 
 **Features**:
 - Automatic detection of yay or paru AUR helpers
@@ -330,7 +330,7 @@ cd paru && makepkg -si
 **Usage**:
 
 ```bash
-# PatchMaster automatically detects and uses your AUR helper
+# Patch-SecOps Solution automatically detects and uses your AUR helper
 # Install mixed packages (official + AUR)
 curl -X POST http://localhost:8080/execute/patch \
   -H "Content-Type: application/json" \
@@ -367,7 +367,7 @@ curl -X POST http://localhost:8080/execute/patch \
 
 ### Kernel Updates
 
-Kernel updates on Arch require a reboot. PatchMaster will:
+Kernel updates on Arch require a reboot. Patch-SecOps Solution will:
 
 1. Detect kernel updates
 2. Mark system as "reboot required"
@@ -607,7 +607,7 @@ sudo systemctl enable --now patchmaster-agent
 - [Arch Linux Wiki](https://wiki.archlinux.org/)
 - [Pacman Documentation](https://wiki.archlinux.org/title/Pacman)
 - [Btrfs Snapshots](https://wiki.archlinux.org/title/Btrfs#Snapshots)
-- [PatchMaster Documentation](../README.md)
+- [Patch-SecOps Solution Documentation](../README.md)
 
 ---
 

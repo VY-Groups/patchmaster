@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env bash
+#!/usr/bin/env bash
 ###############################################################################
 #  PatchMaster — Bare-Metal Uninstaller
 #  Removes PatchMaster services and optionally all data.

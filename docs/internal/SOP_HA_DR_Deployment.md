@@ -1,6 +1,6 @@
-# PatchMaster High Availability & Disaster Recovery (HA/DR) Guide
+# Patch-SecOps Solution High Availability & Disaster Recovery (HA/DR) Guide
 
-This guide details how to deploy PatchMaster in an Enterprise **Active-Passive** (DC/DR) or **Active-Active** (HA Cluster) configuration.
+This guide details how to deploy Patch-SecOps Solution in an Enterprise **Active-Passive** (DC/DR) or **Active-Active** (HA Cluster) configuration.
 
 ---
 

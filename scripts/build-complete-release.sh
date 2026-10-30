@@ -1,6 +1,6 @@
 #!/bin/bash
 ###############################################################################
-# PatchMaster - Complete Release Builder
+# Patch-SecOps Solution - Complete Release Builder
 # Builds all agents, frontend, and creates the final product package
 ###############################################################################
 
@@ -25,7 +25,7 @@ warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 error() { echo -e "${RED}[ERROR]${NC} $1"; }
 section() { echo -e "${CYAN}╔═══════════════════════════════════════════════════════════════╗${NC}"; echo -e "${CYAN}║${NC} $1"; echo -e "${CYAN}╚═══════════════════════════════════════════════════════════════╝${NC}"; }
 
-section "PatchMaster Complete Release Builder v${VERSION}"
+section "Patch-SecOps Solution Complete Release Builder v${VERSION}"
 
 START_TIME=$(date +%s)
 
@@ -59,7 +59,7 @@ fi
 
 # Step 3: Build product package
 section "Step 3: Building Product Package"
-log "Creating PatchMaster product tarball..."
+log "Creating Patch-SecOps Solution product tarball..."
 
 cd "$PROJECT_ROOT"
 
@@ -80,7 +80,7 @@ SECONDS=$((DURATION % 60))
 
 echo ""
 echo "═══════════════════════════════════════════════════════════════"
-echo "  PatchMaster v${VERSION} - Build Complete!"
+echo "  Patch-SecOps Solution v${VERSION} - Build Complete!"
 echo "═══════════════════════════════════════════════════════════════"
 echo ""
 echo "Build time: ${MINUTES}m ${SECONDS}s"

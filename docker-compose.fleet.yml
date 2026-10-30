@@ -1,0 +1,79 @@
+# plan.md S0-8: the fake fleet - containerized Debian, Ubuntu, RHEL-family and
+# Alpine hosts running the agent against an already-running dev stack.
+#
+#   docker compose up -d                              # stack (docker-compose.yml) first
+#   docker compose -f docker-compose.fleet.yml up -d --build
+#
+# Each service builds ./agent on a different base image, so the four hosts
+# report four operating systems and the apt/dnf/apk paths all run for real.
+# Hostnames are distinct, so /api/register creates four distinct hosts
+# (Host.hostname is unique). Registration retries every 60s, so the fleet may
+# be started before the backend is ready.
+x-agent: &agent
+  build:
+    context: ./agent
+    args:
+      BASE_IMAGE: python:3.10-slim
+  restart: unless-stopped
+  environment: &agent-env
+    CONTROLLER_URL: http://backend:8000
+    PATCHMASTER_SITE: fleet
+    PATCHMASTER_AGENT_STATE: /var/lib/patch-agent
+    PATCHMASTER_AGENT_LOG_DIR: /var/log/patch-agent
+  # agent.py serves the agent API; main.py registers and heartbeats.
+  command:
+    - sh
+    - -c
+    - |
+      python3 agent.py --port 8080 --metrics-port 9100 &
+      exec python3 main.py
+  networks:
+    - internal
+
+services:
+  agent-debian:
+    <<: *agent
+    hostname: fleet-debian
+    volumes:
+      - agent_state_debian:/var/lib/patch-agent
+
+  agent-ubuntu:
+    <<: *agent
+    hostname: fleet-ubuntu
+    build:
+      context: ./agent
+      args:
+        BASE_IMAGE: ubuntu:22.04
+    volumes:
+      - agent_state_ubuntu:/var/lib/patch-agent
+
+  agent-rockylinux:
+    <<: *agent
+    hostname: fleet-rockylinux
+    build:
+      context: ./agent
+      args:
+        BASE_IMAGE: rockylinux:9
+    volumes:
+      - agent_state_rockylinux:/var/lib/patch-agent
+
+  agent-alpine:
+    <<: *agent
+    hostname: fleet-alpine
+    build:
+      context: ./agent
+      args:
+        BASE_IMAGE: alpine:3.19
+    volumes:
+      - agent_state_alpine:/var/lib/patch-agent
+
+networks:
+  internal:
+    external: true
+    name: patchmaster_internal
+
+volumes:
+  agent_state_debian:
+  agent_state_ubuntu:
+  agent_state_rockylinux:
+  agent_state_alpine:

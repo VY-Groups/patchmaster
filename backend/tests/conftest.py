@@ -21,8 +21,13 @@ import database
 if hasattr(database, "reset_engine"):
     database.reset_engine()
 
-# Ensure DATABASE_URL is not set to trigger mock mode
-os.environ.pop("DATABASE_URL", None)
+# Ensure DATABASE_URL is not set to trigger mock mode.
+# REAL_DATABASE_URL keeps the original for tests that opt into a live database
+# (S0-4 migration tests); everything else stays in mock mode.
+REAL_DATABASE_URL = os.environ.pop("DATABASE_URL", None)
+
+# S0-1: auth fails closed without a JWT_SECRET; tests supply their own secret.
+os.environ.setdefault("JWT_SECRET", "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef")
 
 # Create mock engine that doesn't try to connect
 mock_engine = MagicMock()
@@ -54,6 +59,17 @@ def mock_database(monkeypatch):
         ):
             with patch.object(database, "get_database_url", return_value=""):
                 yield mock_session
+
+
+@pytest.fixture(autouse=True)
+def reset_rate_limits(monkeypatch):
+    """slowapi keeps its counters in process memory; without this a test that
+    spends a route's budget would 429 the tests that run after it."""
+    from api.auth_api import limiter
+
+    limiter.reset()
+    yield
+    limiter.reset()
 
 
 @pytest.fixture

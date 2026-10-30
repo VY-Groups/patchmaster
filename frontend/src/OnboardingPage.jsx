@@ -36,7 +36,7 @@ const OnboardingPage = () => {
     {
       id: 'ubuntu',
       name: 'Ubuntu / Debian',
-      icon: '🐧',
+      icon: 'server',
       family: 'debian',
       color: 'bg-orange-500',
       packageFormat: '.deb',
@@ -50,7 +50,7 @@ const OnboardingPage = () => {
     {
       id: 'rhel',
       name: 'RHEL / Rocky / Alma',
-      icon: '🎩',
+      icon: 'server',
       family: 'rhel',
       color: 'bg-red-600',
       packageFormat: '.rpm',
@@ -64,7 +64,7 @@ const OnboardingPage = () => {
     {
       id: 'arch',
       name: 'Arch Linux',
-      icon: '⚡',
+      icon: 'server',
       family: 'arch',
       color: 'bg-blue-600',
       packageFormat: '.pkg.tar.zst',
@@ -78,7 +78,7 @@ const OnboardingPage = () => {
     {
       id: 'alpine',
       name: 'Alpine Linux',
-      icon: '🏔️',
+      icon: 'server',
       family: 'alpine',
       color: 'bg-blue-400',
       packageFormat: '.apk',
@@ -92,7 +92,7 @@ const OnboardingPage = () => {
     {
       id: 'amazon',
       name: 'Amazon Linux',
-      icon: '☁️',
+      icon: 'server',
       family: 'rhel',
       color: 'bg-yellow-600',
       packageFormat: '.rpm',
@@ -106,7 +106,7 @@ const OnboardingPage = () => {
     {
       id: 'opensuse',
       name: 'openSUSE',
-      icon: '🦎',
+      icon: 'server',
       family: 'suse',
       color: 'bg-green-600',
       packageFormat: '.rpm',
@@ -120,7 +120,7 @@ const OnboardingPage = () => {
     {
       id: 'freebsd',
       name: 'FreeBSD',
-      icon: '👹',
+      icon: 'server',
       family: 'bsd',
       color: 'bg-red-700',
       packageFormat: '.txz',
@@ -134,7 +134,7 @@ const OnboardingPage = () => {
     {
       id: 'windows',
       name: 'Windows',
-      icon: '🪟',
+      icon: 'server',
       family: 'windows',
       color: 'bg-blue-500',
       packageFormat: '.exe',
@@ -157,7 +157,7 @@ const OnboardingPage = () => {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold text-gray-900 mb-4">
-            Welcome to PatchMaster! 🚀
+            Welcome to Patch-SecOps Solution! 🚀
           </h1>
           <p className="text-xl text-gray-600">
             Choose your operating system to get started
@@ -202,7 +202,7 @@ const OnboardingPage = () => {
 
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                PatchMaster Master URL
+                Patch-SecOps Solution Master URL
               </label>
               <input
                 type="text"
@@ -212,7 +212,7 @@ const OnboardingPage = () => {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               <p className="text-xs text-gray-500 mt-1">
-                Enter your PatchMaster server URL (auto-detected: {masterUrl})
+                Enter your Patch-SecOps Solution server URL (auto-detected: {masterUrl})
               </p>
             </div>
 
@@ -347,7 +347,7 @@ const OnboardingPage = () => {
             </p>
           </div>
           <div className="bg-white rounded-lg shadow p-6">
-            <div className="text-3xl mb-3">📦</div>
+            <div className="text-3xl mb-3">server</div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Offline Support</h3>
             <p className="text-gray-600 text-sm">
               All dependencies bundled - works in air-gapped environments

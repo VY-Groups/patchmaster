@@ -144,7 +144,7 @@ This is a critical bug fix release that addresses deployment issues, WebSocket c
 
 ### Documentation
 
-- **DEPLOYMENT_FIXES.md** - Complete guide for all fixes and deployment procedures
+- **docs/internal/PRODUCTION_HARDENING_RUNBOOK.md** - Complete guide for all fixes and deployment procedures
 - **RELEASE_NOTES_2.0.1.md** - This file
 
 ## Installation
@@ -275,7 +275,7 @@ None. This is a backward-compatible bug fix release.
 - `fix_websocket_and_groups.sh` - WebSocket and Groups fixes
 - `fix_agent_registration.sh` - Agent registration fixes
 - `diagnose_agent_issues.sh` - Comprehensive diagnostics
-- `DEPLOYMENT_FIXES.md` - Complete deployment guide
+- `docs/internal/PRODUCTION_HARDENING_RUNBOOK.md` - Complete deployment guide
 - `OFFLINE_AGENT_INSTALLATION.md` - Offline agent installation guide
 - `agent/download-wheels.sh` - Download Python wheels for offline builds
 - `RELEASE_NOTES_2.0.1.md` - This file
@@ -296,7 +296,7 @@ sha256sum -c patchmaster-2.0.1.tar.gz.sha256
 If you encounter issues:
 
 1. **Read the documentation:**
-   - `DEPLOYMENT_FIXES.md` - Complete troubleshooting guide
+   - `docs/internal/PRODUCTION_HARDENING_RUNBOOK.md` - Complete troubleshooting guide
    - `README.md` - General installation instructions
 
 2. **Run diagnostics:**

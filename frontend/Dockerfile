@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:22-alpine
 
 WORKDIR /app
 
@@ -12,5 +12,5 @@ COPY . .
 # Expose Vite port
 EXPOSE 3000
 
-# Start Vite dev server with host access
-CMD ["npm", "run", "dev", "--", "--host"]
+# Start Vite dev server with host access (script is "start"; vite.config.js sets port 3000)
+CMD ["npm", "run", "start", "--", "--host"]

@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 ###############################################################################
 # PatchMaster Agent - RPM Package Builder
 # Creates .rpm package for openSUSE/AlmaLinux/RHEL

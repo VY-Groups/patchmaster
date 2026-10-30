@@ -206,7 +206,7 @@ async def test_webhook_delivery(url: str, test_payload: dict = None) -> Dict[str
     if test_payload is None:
         test_payload = {
             "event": "test",
-            "message": "PatchMaster webhook test",
+            "message": "Patch-SecOps Solution webhook test",
             "timestamp": datetime.utcnow().isoformat(),
         }
 

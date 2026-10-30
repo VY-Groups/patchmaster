@@ -275,7 +275,7 @@ export default function MonitoringOpsPage({ licenseInfo, hosts = [], API, apiFet
         <div className="ops-summary-card">
           <div className="ops-summary-head">
             <span className="ops-summary-icon" style={{ color: '#2563eb', background: 'rgba(37,99,235,0.12)' }}>PM</span>
-            <span className="ops-summary-label">PatchMaster Endpoint</span>
+            <span className="ops-summary-label">Patch-SecOps Solution Endpoint</span>
           </div>
           <div className="ops-summary-value" style={{ fontSize: 24 }}>/metrics</div>
           <div className="ops-summary-sub">{masterIp}:8000 scrape target for Prometheus</div>
@@ -286,7 +286,7 @@ export default function MonitoringOpsPage({ licenseInfo, hosts = [], API, apiFet
         <div className="ops-table-toolbar">
           <div>
             <div className="ops-panel-title">Workspace</div>
-            <p className="ops-subtle">Switch between service overview and embedded live views without leaving PatchMaster.</p>
+            <p className="ops-subtle">Switch between service overview and embedded live views without leaving Patch-SecOps Solution.</p>
           </div>
         </div>
         <div className="ops-pills">
@@ -345,7 +345,7 @@ export default function MonitoringOpsPage({ licenseInfo, hosts = [], API, apiFet
               <div className="ops-table-toolbar">
                 <div>
                   <div className="ops-panel-title">Metrics scrape config</div>
-                  <p className="ops-subtle">PatchMaster exposes Prometheus-format metrics directly from the application backend.</p>
+                  <p className="ops-subtle">Patch-SecOps Solution exposes Prometheus-format metrics directly from the application backend.</p>
                 </div>
               </div>
               <pre className="code-block">{`# prometheus.yml scrape config

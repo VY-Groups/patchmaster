@@ -7,7 +7,7 @@
 
 ## TL;DR
 
-PatchMaster now fully supports AUR packages via yay or paru. Install an AUR helper, and PatchMaster handles the rest automatically.
+Patch-SecOps Solution now fully supports AUR packages via yay or paru. Install an AUR helper, and Patch-SecOps Solution handles the rest automatically.
 
 ---
 
@@ -21,7 +21,7 @@ sudo pacman -S --needed git base-devel
 git clone https://aur.archlinux.org/yay.git
 cd yay && makepkg -si
 
-# 3. Done! PatchMaster auto-detects yay
+# 3. Done! Patch-SecOps Solution auto-detects yay
 ```
 
 ---
@@ -303,10 +303,10 @@ print(f"AUR Updates: {aur_updates}")
 **A**: Yes, AUR helpers must be installed manually first.
 
 ### Q: Can I use paru instead of yay?
-**A**: Yes, PatchMaster detects both automatically.
+**A**: Yes, Patch-SecOps Solution detects both automatically.
 
 ### Q: What if I don't have an AUR helper?
-**A**: PatchMaster still works for official packages.
+**A**: Patch-SecOps Solution still works for official packages.
 
 ### Q: Are AUR packages safe?
 **A**: They're community-maintained. Review PKGBUILDs first.

@@ -1,25 +1,25 @@
 groups:
   - name: patchmaster-core
     rules:
-      - alert: PatchMasterBackendDown
+      - alert: PatchSecopsBackendDown
         expr: up{job="patchmaster-backend"} == 0
         for: 2m
         labels:
           severity: critical
         annotations:
-          summary: "PatchMaster backend is down"
+          summary: "PatchSecops backend is down"
           description: "Prometheus cannot scrape the backend /metrics endpoint for 2 minutes."
 
-      - alert: PatchMasterAgentMissing
+      - alert: PatchSecopsAgentMissing
         expr: sum(up{job="patchmaster-agents"} == bool 1) == 0
         for: 5m
         labels:
           severity: warning
         annotations:
           summary: "No agents are reachable"
-          description: "Prometheus has not scraped any PatchMaster agents for 5 minutes."
+          description: "Prometheus has not scraped any PatchSecops agents for 5 minutes."
 
-      - alert: PatchMasterHighErrorRate
+      - alert: PatchSecopsHighErrorRate
         expr: rate(patchmaster_api_requests_total{status!~"2.."}[5m]) > 0.1
         for: 5m
         labels:
@@ -28,7 +28,7 @@ groups:
           summary: "Backend HTTP error rate is elevated"
           description: "Non-2xx response rate exceeded 0.1 req/s over the last 5 minutes."
 
-      - alert: PatchMasterHostCPUHigh
+      - alert: PatchSecopsHostCPUHigh
         expr: max by(instance) (system_cpu_usage_percent{job="patchmaster-agents"}) > 80
         for: 5m
         labels:
@@ -37,7 +37,7 @@ groups:
           summary: "Host CPU above 80%"
           description: "Host {{ $labels.instance }} CPU usage is {{ $value }}% for over 5 minutes."
 
-      - alert: PatchMasterHostMemoryHigh
+      - alert: PatchSecopsHostMemoryHigh
         expr: max by(instance) (system_memory_usage_percent{job="patchmaster-agents"}) > 80
         for: 5m
         labels:
@@ -46,7 +46,7 @@ groups:
           summary: "Host memory above 80%"
           description: "Host {{ $labels.instance }} memory usage is {{ $value }}% for over 5 minutes."
 
-      - alert: PatchMasterHostDiskIOHigh
+      - alert: PatchSecopsHostDiskIOHigh
         expr: max by(instance) (system_disk_read_bytes_per_sec{job="patchmaster-agents"} + system_disk_write_bytes_per_sec{job="patchmaster-agents"}) > 10485760
         for: 5m
         labels:
@@ -55,7 +55,7 @@ groups:
           summary: "Host disk I/O high"
           description: "Host {{ $labels.instance }} disk throughput is above 10 MiB/s for over 5 minutes."
 
-      - alert: PatchMasterRegisteredHostOffline
+      - alert: PatchSecopsRegisteredHostOffline
         expr: (patchmaster_hosts_total - patchmaster_hosts_online) > 0
         for: 10m
         labels:

@@ -1,4 +1,4 @@
-﻿# PatchMaster Release Notes - Version 2.0.7
+﻿# Patch-SecOps Solution Release Notes - Version 2.0.7
 
 **Release Date:** April 12, 2026  
 **Package Size:** 123 MB  

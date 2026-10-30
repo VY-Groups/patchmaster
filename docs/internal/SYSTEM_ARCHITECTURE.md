@@ -1,4 +1,4 @@
-# PatchMaster System Architecture & Workflows
+# Patch-SecOps Solution System Architecture & Workflows
 
 ## 1. High-Level Architecture (HA Deployment)
 

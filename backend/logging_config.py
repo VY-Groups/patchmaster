@@ -1,5 +1,5 @@
 """
-PatchMaster Logging Configuration.
+Patch-SecOps Solution Logging Configuration.
 
 Provides optimized logging with async handlers, batching, rotation,
 and structured JSON logging for performance.

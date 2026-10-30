@@ -181,7 +181,6 @@ async def list_catalog(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    await _ensure_kiosk_schema(db)
     query = select(SoftwareCatalogItem).order_by(SoftwareCatalogItem.name.asc())
     is_operator = (user.role in {UserRole.admin, UserRole.operator})
     if not include_disabled or not is_operator:
@@ -196,7 +195,6 @@ async def create_catalog_item(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
-    await _ensure_kiosk_schema(db)
     normalized_package = body.package_name.strip()
     existing = await db.execute(select(SoftwareCatalogItem).where(SoftwareCatalogItem.package_name == normalized_package))
     if existing.scalar_one_or_none():
@@ -223,7 +221,6 @@ async def update_catalog_item(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
-    await _ensure_kiosk_schema(db)
     item = await db.get(SoftwareCatalogItem, item_id)
     if not item:
         raise HTTPException(status_code=404, detail="Catalog item not found")
@@ -254,7 +251,6 @@ async def delete_catalog_item(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
-    await _ensure_kiosk_schema(db)
     item = await db.get(SoftwareCatalogItem, item_id)
     if not item:
         raise HTTPException(status_code=404, detail="Catalog item not found")
@@ -269,7 +265,6 @@ async def list_requests(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    await _ensure_kiosk_schema(db)
     query = (
         select(SoftwareKioskRequest)
         .options(
@@ -294,7 +289,6 @@ async def submit_request(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    await _ensure_kiosk_schema(db)
     item = await db.get(SoftwareCatalogItem, body.catalog_item_id)
     if not item or not item.is_enabled:
         raise HTTPException(status_code=404, detail="Catalog item is not available")
@@ -336,7 +330,6 @@ async def approve_request(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
-    await _ensure_kiosk_schema(db)
     query = (
         select(SoftwareKioskRequest)
         .options(
@@ -372,7 +365,6 @@ async def reject_request(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
-    await _ensure_kiosk_schema(db)
     query = (
         select(SoftwareKioskRequest)
         .options(

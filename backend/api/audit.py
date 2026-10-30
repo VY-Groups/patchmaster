@@ -15,26 +15,12 @@ from pydantic import BaseModel
 from sqlalchemy import select, desc, func, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload, Session
-from sqlalchemy import Column, Integer, String, DateTime, JSON, Text, Boolean, Index
 
-from database import get_db, Base
+from database import get_db
 from auth import get_current_user
-from models.db_models import AuditLog, User
+from models.db_models import AuditLog, AuditLogIntegrity, User
 
 router = APIRouter(prefix="/api/audit", tags=["audit"])
-
-
-class AuditLogIntegrity(Base):
-    """Extended audit log table for tamper-proof logging."""
-
-    __tablename__ = "audit_log_integrity"
-
-    id = Column(Integer, primary_key=True)
-    log_id = Column(Integer, nullable=False, index=True)
-    previous_hash = Column(String(64), nullable=False)
-    current_hash = Column(String(64), nullable=False)
-    signature = Column(Text, nullable=True)  # Optional HMAC signature
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
 
 
 class RetentionPolicy(str, Enum):

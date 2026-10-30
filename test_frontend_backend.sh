@@ -1,10 +1,10 @@
 #!/bin/bash
 # Test frontend-backend integration
-# Run this on the PatchMaster server after installation
+# Run this on the Patch-SecOps Solution server after installation
 
 set -e
 
-echo "=== PatchMaster Frontend-Backend Integration Test ==="
+echo "=== Patch-SecOps Solution Frontend-Backend Integration Test ==="
 echo ""
 
 # Colors
@@ -107,7 +107,7 @@ if [ "$STATUS" = "200" ]; then
     
     # Check if index.html contains expected content
     CONTENT=$(curl -s http://127.0.0.1:${FRONTEND_PORT}/)
-    if echo "$CONTENT" | grep -q "PatchMaster"; then
+    if echo "$CONTENT" | grep -q "Patch-SecOps Solution"; then
         echo -e "${GREEN}✓${NC} Frontend content looks correct"
     else
         echo -e "${YELLOW}!${NC} Frontend content may be incorrect"

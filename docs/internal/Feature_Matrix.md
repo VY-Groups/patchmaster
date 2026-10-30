@@ -1,4 +1,4 @@
-# PatchMaster Feature Matrix
+# Patch-SecOps Solution Feature Matrix
 
 Comparison of features available across different license tiers.
 

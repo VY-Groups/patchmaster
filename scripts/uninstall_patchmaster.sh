@@ -1,5 +1,5 @@
-﻿#!/usr/bin/env bash
-# PatchMaster Advanced Uninstaller
+#!/usr/bin/env bash
+# Patch-SecOps Solution Advanced Uninstaller
 # Safely stops and removes backend/frontend/monitoring bits.
 # Usage:
 #   sudo bash scripts/uninstall_patchmaster.sh            # prompt before destructive steps
@@ -24,7 +24,7 @@ banner() {
  |_|   \__,_|\__\___|_| |_| |_|  |_|_| |_|
 ART
     echo -e "${NC}"
-    echo "       PatchMaster by VYGROUP  v${PM_VERSION}"
+    echo "       Patch-SecOps Solution by VYGROUP  v${PM_VERSION}"
     echo "           Advanced Uninstaller"
     echo
 }
@@ -78,7 +78,7 @@ dir_remove() {
   echo "Removed $path"
 }
 
-log "Stopping PatchMaster services..."
+log "Stopping Patch-SecOps Solution services..."
 svc_stop_disable patchmaster-backend
 svc_stop_disable patchmaster-frontend
 svc_stop_disable patchmaster-monitoring
@@ -138,7 +138,7 @@ else
 fi
 
 if $PURGE_ALL; then
-  if confirm "Purge local PostgreSQL PatchMaster databases/users if present?"; then
+  if confirm "Purge local PostgreSQL Patch-SecOps Solution databases/users if present?"; then
     if command -v sudo >/dev/null 2>&1; then
       sudo -u postgres psql -v ON_ERROR_STOP=0 -c "DROP DATABASE IF EXISTS patchmaster;" 2>/dev/null || true
       sudo -u postgres psql -v ON_ERROR_STOP=0 -c "DROP USER IF EXISTS patchmaster;" 2>/dev/null || true

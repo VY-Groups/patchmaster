@@ -1,7 +1,7 @@
 """Multi-tenant isolation middleware and utilities.
 
 Provides tenant context management, row-level security, and tenant isolation
-for PatchMaster data.
+for Patch-SecOps Solution data.
 """
 
 import logging

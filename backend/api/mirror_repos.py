@@ -788,7 +788,7 @@ async def _download_package(repo_dir: Path, item: dict[str, Any]) -> Optional[st
     file_name = os.path.basename(source_url.split("?")[0].strip())
     if not file_name:
         raw = f"{item.get('package_name', 'pkg')}-{item.get('package_version', 'ver')}"
-        file_name = hashlib.sha1(raw.encode("utf-8")).hexdigest()[:16]
+        file_name = hashlib.sha1(raw.encode("utf-8"), usedforsecurity=False).hexdigest()[:16]
     file_path = repo_dir / file_name
     if file_path.exists():
         return file_name
@@ -894,7 +894,8 @@ async def execute_repo_sync(db: AsyncSession, repo: MirrorRepo, trigger_type: st
                             },
                             sort_keys=True,
                             default=str,
-                        ).encode("utf-8")
+                        ).encode("utf-8"),
+                        usedforsecurity=False,
                     ).hexdigest()
                     incoming_fp = hashlib.sha1(
                         json.dumps(
@@ -905,7 +906,8 @@ async def execute_repo_sync(db: AsyncSession, repo: MirrorRepo, trigger_type: st
                             },
                             sort_keys=True,
                             default=str,
-                        ).encode("utf-8")
+                        ).encode("utf-8"),
+                        usedforsecurity=False,
                     ).hexdigest()
                     if existing_fp != incoming_fp or file_name:
                         existing.source_url = item["source_url"]

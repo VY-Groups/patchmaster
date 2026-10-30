@@ -1,5 +1,5 @@
 """
-PatchMaster — Monitoring Service Manager
+Patch-SecOps Solution — Monitoring Service Manager
 Manages Prometheus and Grafana lifecycle based on license tier.
 Calls monitoring-ctl.sh (via sudo) for privileged operations.
 """

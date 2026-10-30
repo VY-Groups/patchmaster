@@ -1,0 +1,236 @@
+# CI gates — plan.md S0-7.
+# Every command in this file was run and verified locally before being added
+# (2026-10-25, Windows + Docker). Add a gate only after it passes locally first.
+#
+# Verified local evidence:
+#   ruff E9,F63,F7,F82  -> "All checks passed" (0 findings) after removing the
+#                          dead backend/auth/ duplicate that held an F821.
+#   pytest (backend)    -> 164 passed, 67 skipped, 0 failed.
+#   bandit -lll         -> exit 0 (0 high-severity; was 6 -> 0 this cycle).
+#   pip-audit           -> "No known vulnerabilities found" (was 54 in 5 pins).
+#   gitleaks dir        -> "no leaks found" (was 529 raw / 3 in tracked source).
+#   npm run build       -> exit 0 (vite, 5.4s).
+#   playwright test     -> 4 passed (3 stubbed + 1 live-stack; live spec skips
+#                          itself when PLAYWRIGHT_REAL_* is not configured).
+#   packaging/build-package.sh -> exit 0 in a clean node:22 container (npm ci +
+#                          build): dist/patchmaster-2.0.17.tar.gz (12 MB) +
+#                          .sha256 + BUILD-MANIFEST.txt.
+#
+# Not yet gated (honest deferrals, each needs its own work package):
+#   type-check: mypy runs but reports 102 pre-existing errors in 24 files
+#     (see the non-blocking job below) — becomes blocking when cleared.
+#   migration test: gated since S0-4 landed (PM_TEST_MIGRATION_DB_URL below;
+#     backend/tests/test_migrations.py against the scratch DB).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint (ruff error classes)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install ruff==0.17.2
+      # E9=runtime syntax errors, F63=assert/tuple misuse, F7=loop/except misuse,
+      # F82=undefined names in __all__. The subset that catches real bugs on an
+      # un-linted legacy tree (it found the rbac.py F821).
+      - run: ruff check --select E9,F63,F7,F82 backend agent scripts
+
+  type-check:
+    name: Type check (mypy, non-blocking)
+    runs-on: ubuntu-latest
+    # shortcut: 102 pre-existing errors in 24 files; flip continue-on-error to
+    # false as part of the S0-7 follow-up that clears them.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install mypy==2.4.0
+      - run: >
+          mypy backend
+          --explicit-package-bases --namespace-packages
+          --ignore-missing-imports --follow-imports=skip --implicit-optional
+
+  backend-tests:
+    name: Backend unit/API tests (pytest + coverage floor)
+    runs-on: ubuntu-latest
+    # S0-4: the migration test is the only suite member that needs a live
+    # Postgres. It provisions and drops its own scratch databases
+    # (pm_migrate_*) on this server - never the one below's main DB.
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: patchmaster
+          POSTGRES_PASSWORD: patchmaster
+          POSTGRES_DB: patchmaster
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U patchmaster"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      # agent/requirements.txt: the agent API contract characterization tests
+      # (test_agent_api_contract.py) need Flask; installing it here keeps the
+      # backend runtime image free of Flask.
+      - run: pip install -r backend/requirements.txt -r agent/requirements.txt pytest==9.1.1 pytest-cov==7.1.0
+        # test deps installed above; verified locally (2026-10-26, Docker CI-fidelity).
+      # Coverage floor (plan.md S0-6: ratchets upward, never down).
+      # Measured 2026-10-25: Windows 42.0016%, Linux (CI image) 41.95%.
+      # Floor=41 clears both with margin; raise to the next whole percent once
+      # more tests land (never below a value both platforms already pass).
+      # Report uploads as an artifact either way.
+      - run: pytest -q --cov=. --cov-report=xml --cov-fail-under=41
+        working-directory: backend
+        env:
+          PM_TEST_MIGRATION_DB_URL: postgresql+asyncpg://patchmaster:patchmaster@localhost:5432/patchmaster
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: backend/coverage.xml
+          retention-days: 14
+
+  security-scan:
+    name: Security scan (bandit + pip-audit + gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install bandit==1.9.4 pip-audit==2.10.1
+      # -lll = high severity only; medium/low findings are tracked separately.
+      - run: bandit -r backend agent -x 'backend/tests' -lll -q
+      - run: pip-audit -r backend/requirements.txt
+      - name: gitleaks (secret scanning, S0-1)
+        run: |
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz" -o /tmp/gitleaks.tgz
+          tar -xzf /tmp/gitleaks.tgz -C /tmp gitleaks
+          /tmp/gitleaks dir . --config .gitleaks.toml --no-banner
+
+  package-build:
+    name: Product package build (S0-7)
+    runs-on: ubuntu-latest
+    # Verified locally 2026-10-25 in a clean node:22 container: npm ci,
+    # packaging/build-package.sh -> exit 0, tarball + sha256 + manifest.
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+        working-directory: frontend
+      - run: bash packaging/build-package.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: patchmaster-package
+          path: |
+            dist/*.tar.gz
+            dist/*.sha256
+          retention-days: 14
+
+  frontend-build:
+    name: Frontend build (vite)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run build
+
+  e2e:
+    name: E2E (Playwright)
+    runs-on: ubuntu-latest
+    needs: [lint, backend-tests, security-scan, frontend-build]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+        working-directory: frontend
+      - name: Install Chromium
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+      # Optional live stack: configure ONE repo secret, PM_E2E_ENV, with the
+      # contents of a working .env (JWT_SECRET, PM_SECRET_KEY, LICENSE_*,
+      # POSTGRES_PASSWORD, GF_ADMIN_PASSWORD, PM_ADMIN_*, PLAYWRIGHT_REAL_*).
+      # Without it, real-backend.spec.js skips itself (spec reads the same env
+      # below) and the stubbed specs still run.
+      - name: Write deployment env (live-stack e2e)
+        env:
+          PM_E2E_ENV: ${{ secrets.PM_E2E_ENV }}
+        run: |
+          if [ -n "$PM_E2E_ENV" ]; then
+            printf '%s\n' "$PM_E2E_ENV" > .env
+            echo "HAS_ENV=true" >> "$GITHUB_ENV"
+            echo "Live-stack e2e enabled."
+          else
+            echo "HAS_ENV=false" >> "$GITHUB_ENV"
+            echo "::notice::PM_E2E_ENV secret not configured - live-stack spec will skip."
+          fi
+      - name: Start stack
+        if: env.HAS_ENV == 'true'
+        run: docker compose up -d --build
+      - name: Wait for stack health
+        if: env.HAS_ENV == 'true'
+        run: |
+          for i in $(seq 1 60); do
+            curl -fsS http://localhost:3000/api/health >/dev/null 2>&1 && exit 0
+            sleep 5
+          done
+          echo "Stack did not become healthy in 300s" >&2
+          docker compose logs --tail 80
+          exit 1
+      - name: Run Playwright suite
+        working-directory: frontend
+        run: |
+          # Export the deployment env (incl. PLAYWRIGHT_REAL_*) when present;
+          # absent vars make real-backend.spec.js skip itself.
+          if [ "$HAS_ENV" = "true" ]; then set -a; . ../.env; set +a; fi
+          npx playwright test
+      - name: Stack logs on failure
+        if: failure() && env.HAS_ENV == 'true'
+        run: docker compose logs --tail 200
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: reports/playwright/
+          retention-days: 14
+      - name: Tear down
+        if: always()
+        run: docker compose down -v || true

@@ -275,7 +275,7 @@ export default function CVEOpsPage({ API, apiFetch, hasRole, getToken, AppIcon }
         title: 'Immediate exposure requires action',
         description: 'Critical vulnerabilities are present. Prioritize host-linked records and queue remediation jobs quickly.',
         tone: '#b91c1c',
-        bg: 'linear-gradient(145deg, #fef2f2, #fff6f6)',
+        bg: 'linear-gradient(145deg, #fef2f2, var(--card-bg)6f6)',
         border: '#fca5a5',
       }
     : highCount > 0
@@ -283,7 +283,7 @@ export default function CVEOpsPage({ API, apiFetch, hasRole, getToken, AppIcon }
           title: 'Elevated risk posture',
           description: 'High-severity CVEs remain open. Review affected hosts and convert findings into patch work quickly.',
           tone: '#b45309',
-          bg: 'linear-gradient(145deg, #fffbeb, #fffdf5)',
+          bg: 'linear-gradient(145deg, var(--card-bg)beb, var(--card-bg)df5)',
           border: '#fcd34d',
         }
       : {
@@ -319,7 +319,7 @@ export default function CVEOpsPage({ API, apiFetch, hasRole, getToken, AppIcon }
           padding: '12px 16px',
           borderRadius: 8,
           background: toast.type === 'success' ? '#0f5132' : toast.type === 'danger' ? '#842029' : '#1e293b',
-          color: '#fff',
+          color: 'var(--card-bg)',
           boxShadow: '0 10px 20px rgba(0,0,0,0.25)',
           zIndex: 2000,
         }}>
@@ -391,14 +391,14 @@ export default function CVEOpsPage({ API, apiFetch, hasRole, getToken, AppIcon }
             {hasRole('admin', 'operator') && (
               <>
                 <div className="form-row">
-                  <label style={{ fontSize: 12, color: '#64748b' }}>Source</label>
+                  <label style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Source</label>
                   <select className="input" value={syncSource} onChange={e => setSyncSource(e.target.value)} style={{ width: 130 }}>
                     <option value="nvd">NVD</option>
                     <option value="cis">CIS</option>
                   </select>
                 </div>
                 <div className="form-row">
-                  <label style={{ fontSize: 12, color: '#64748b' }}>Days</label>
+                  <label style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Days</label>
                   <input className="input" type="number" min={1} max={30} value={nvdDays} onChange={e => setNvdDays(parseInt(e.target.value || '2', 10))} style={{ width: 84 }} disabled={syncSource !== 'nvd'} />
                 </div>
                 <button className="btn" onClick={syncFeed} disabled={syncing}>{syncing ? 'Syncing...' : 'Fetch Latest'}</button>
@@ -483,7 +483,7 @@ export default function CVEOpsPage({ API, apiFetch, hasRole, getToken, AppIcon }
           </div>
           <div className="form-row">
             <input className="input search-input" placeholder="Search CVE ID or description" value={search} onChange={e => setSearch(e.target.value)} aria-label="Search CVEs by ID or description" />
-            <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#64748b' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--text-secondary)' }}>
               <input type="checkbox" checked={onlyWithHosts} onChange={e => setOnlyWithHosts(e.target.checked)} />
               Host-linked only
             </label>
@@ -527,7 +527,7 @@ export default function CVEOpsPage({ API, apiFetch, hasRole, getToken, AppIcon }
             </div>
             {/* Pagination controls */}
             {pages > 1 && (
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 12, padding: '16px 0', borderTop: '1px solid #e2e8f0' }}>
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 12, padding: '16px 0', borderTop: '1px solid var(--border-color)' }}>
                 <button 
                   className="btn btn-sm" 
                   onClick={() => setPage(p => Math.max(1, p - 1))}
@@ -535,7 +535,7 @@ export default function CVEOpsPage({ API, apiFetch, hasRole, getToken, AppIcon }
                 >
                   Previous
                 </button>
-                <span style={{ fontSize: 13, color: '#64748b' }}>
+                <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
                   Page {page} of {pages} ({total} total CVEs)
                 </span>
                 <button 

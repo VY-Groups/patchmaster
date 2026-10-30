@@ -18,7 +18,7 @@ class SplunkIntegration:
         hec_url: str,
         hec_token: str,
         index: str = "main",
-        source: str = "PatchMaster",
+        source: str = "Patch-SecOps Solution",
         sourcetype: str = "patchmaster:events",
         verify_ssl: bool = True,
     ):
@@ -50,7 +50,7 @@ class SplunkIntegration:
         """Build a Splunk event payload."""
         payload = {
             "event": event,
-            "host": host or "PatchMaster",
+            "host": host or "Patch-SecOps Solution",
             "source": self.source,
             "sourcetype": self.sourcetype,
             "index": self.index,
@@ -156,13 +156,13 @@ class SplunkIntegration:
         """Test the Splunk connection."""
         test_event = {
             "event_type": "test",
-            "message": "PatchMaster Splunk integration test",
+            "message": "Patch-SecOps Solution Splunk integration test",
             "timestamp": datetime.utcnow().isoformat(),
         }
         return await self.send_event(test_event)
 
 
-# Event type helpers for common PatchMaster events
+# Event type helpers for common Patch-SecOps Solution events
 async def send_patch_job_event(
     integration: SplunkIntegration,
     job_id: int,

@@ -51,7 +51,7 @@ def _fernet() -> Fernet:
     if not raw:
         raise RuntimeError(
             "PM_SECRET_KEY environment variable is not set. "
-            "Set it to a 32-byte URL-safe base64 key before starting PatchMaster."
+            "Set it to a 32-byte URL-safe base64 key before starting Patch-SecOps Solution."
         )
     raw_bytes = raw.encode() if isinstance(raw, str) else raw
     # Validate: a proper Fernet key is exactly 44 URL-safe base64 chars (32 bytes decoded)

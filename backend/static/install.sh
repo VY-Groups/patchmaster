@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 # PatchMaster Agent Installer (Offline / Air-Gapped)
 # Usage: curl -sS http://<master-ip>:3000/download/install.sh | sudo bash -s -- <master-ip>
 #

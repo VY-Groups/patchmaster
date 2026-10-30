@@ -1,4 +1,4 @@
-"""OIDC / OAuth2 SSO integration for PatchMaster.
+"""OIDC / OAuth2 SSO integration for Patch-SecOps Solution.
 
 Supports any standards-compliant identity provider:
   - Okta:         OIDC_DISCOVERY_URL=https://{domain}/.well-known/openid-configuration
@@ -12,7 +12,7 @@ Required environment variables:
   OIDC_CLIENT_SECRET=<your-client-secret>
   OIDC_DISCOVERY_URL=<discovery-url>
   OIDC_REDIRECT_URI=https://your-server/api/auth/oidc/callback
-  OIDC_ROLE_CLAIM=groups   (optional: OIDC claim to map to PatchMaster roles)
+  OIDC_ROLE_CLAIM=groups   (optional: OIDC claim to map to Patch-SecOps Solution roles)
   OIDC_ROLE_MAP={"admin":["pm-admins"],"operator":["pm-ops"]}   (optional JSON mapping)
 """
 import os
@@ -73,7 +73,7 @@ def _get_oauth_client():
 
 
 def _map_role(claims: dict) -> str:
-    """Map OIDC claims to a PatchMaster role using OIDC_ROLE_MAP."""
+    """Map OIDC claims to a Patch-SecOps Solution role using OIDC_ROLE_MAP."""
     if not OIDC_ROLE_MAP:
         return OIDC_DEFAULT_ROLE
 
@@ -187,7 +187,7 @@ async def oidc_callback(request: Request, code: str, state: str):
     if not email and not sub:
         raise HTTPException(400, "OIDC provider did not return email or subject claim")
 
-    # Map to PatchMaster role
+    # Map to Patch-SecOps Solution role
     pm_role = _map_role(claims)
 
     # Upsert user in DB

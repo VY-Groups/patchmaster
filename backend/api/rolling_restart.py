@@ -1,5 +1,5 @@
 """
-Rolling Restart API for PatchMaster.
+Rolling Restart API for Patch-SecOps Solution.
 
 Provides wave-based rolling restart functionality for hosts.
 Supports configurable batch sizes, health checks, and rollback on failure.

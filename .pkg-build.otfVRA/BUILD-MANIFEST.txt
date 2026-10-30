@@ -1,5 +1,0 @@
-PatchMaster Product Package
-Version: 2.0.0
-Built-At-UTC: 2026-04-12T03:37:16Z
-Git-Revision: 6c129e8
-Frontend-Dist: frontend/dist

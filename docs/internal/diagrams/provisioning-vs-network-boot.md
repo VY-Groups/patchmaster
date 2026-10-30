@@ -1,4 +1,4 @@
-# PatchMaster Provisioning Vs Network Boot
+# Patch-SecOps Solution Provisioning Vs Network Boot
 
 ## 1. Current Provisioning Center Flow
 
@@ -6,12 +6,12 @@
 flowchart TD
     A["Operator opens Provisioning Center"] --> B["Choose registered source host"]
     B --> C["Capture full-system image"]
-    C --> D["Store golden image on PatchMaster server"]
+    C --> D["Store golden image on Patch-SecOps Solution server"]
     D --> E["Create provisioning template"]
     E --> F["Choose registered target hosts"]
     F --> G["Queue rollout through operations queue"]
     G --> H["Target agents download and restore image"]
-    H --> I["PatchMaster records per-target results"]
+    H --> I["Patch-SecOps Solution records per-target results"]
 ```
 
 ## 2. Managed Network Boot Flow
@@ -23,8 +23,8 @@ flowchart TD
     C --> D["Create boot profile"]
     D --> E["Choose install mode and install source"]
     E --> F["Optional: link stored golden image template"]
-    F --> G["PatchMaster generates iPXE script"]
-    G --> H["PatchMaster generates answer file"]
+    F --> G["Patch-SecOps Solution generates iPXE script"]
+    G --> H["Patch-SecOps Solution generates answer file"]
     H --> I["Operator validates rollout design and standards"]
     I --> J["Relay bundle prepared for deployment"]
     J --> K["Bare-metal endpoint boots and enrolls"]
@@ -60,7 +60,7 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    A["Provisioning Center"] --> B["Managed host already trusted by PatchMaster agent"]
+    A["Provisioning Center"] --> B["Managed host already trusted by Patch-SecOps Solution agent"]
     C["Managed Network Boot"] --> D["Pre-agent delivery boundary"]
     D --> E["HTTP boot artifacts"]
     D --> F["Relay DNS/DHCP/TFTP configuration"]

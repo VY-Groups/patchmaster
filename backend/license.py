@@ -1,5 +1,5 @@
 """
-PatchMaster — License validation module.
+Patch-SecOps Solution — License validation module.
 Validates signed license keys and checks expiry.
 """
 
@@ -357,11 +357,11 @@ def _derive_pm2_aead_key(shared_secret: bytes) -> bytes:
 def _decrypt_pm2_payload(header_b64: str, envelope_b64: str) -> dict:
     decrypt_private_key = _get_license_decrypt_private_key()
     if not decrypt_private_key:
-        raise LicenseError("PatchMaster PM2 decryption key is not configured")
+        raise LicenseError("Patch-SecOps Solution PM2 decryption key is not configured")
 
     private_key_bytes = _decode_key_bytes(decrypt_private_key)
     if not private_key_bytes:
-        raise LicenseError("PatchMaster PM2 decryption key is invalid")
+        raise LicenseError("Patch-SecOps Solution PM2 decryption key is invalid")
 
     envelope = _decode_b64_json(envelope_b64, "License key envelope is corrupted")
     epk = _decode_key_bytes(envelope.get("epk", ""))
@@ -384,7 +384,7 @@ def _decrypt_pm2_payload(header_b64: str, envelope_b64: str) -> dict:
 
 
 def normalize_license_key(raw_value: str) -> str:
-    """Extract a real PatchMaster PM2 key from pasted text, JSON, or wrapped files."""
+    """Extract a real Patch-SecOps Solution PM2 key from pasted text, JSON, or wrapped files."""
     if raw_value is None:
         return ""
 
@@ -430,7 +430,7 @@ def decode_license(license_key: str) -> dict:
         raise LicenseError("Invalid license key format. Only PM2 encrypted licenses are supported.")
 
     if not _verification_configured():
-        raise LicenseError("PatchMaster license verification is not configured")
+        raise LicenseError("Patch-SecOps Solution license verification is not configured")
 
     # PM2 License Processing
     body = license_key[4:]
@@ -537,7 +537,7 @@ def get_license_info(force_refresh: bool = False) -> dict:
             "valid": False,
             "expired": False,
             "activated": False,
-            "error": "No license key found. Activate a license to use PatchMaster.",
+            "error": "No license key found. Activate a license to use Patch-SecOps Solution.",
         }
         _cached_license = info
         _cache_time = now

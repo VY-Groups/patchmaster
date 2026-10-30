@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-PatchMaster Backup CLI
-A user-friendly command line tool for managing PatchMaster backups.
+Patch-SecOps Solution Backup CLI
+A user-friendly command line tool for managing Patch-SecOps Solution backups.
 """
 import argparse
 import requests
@@ -108,11 +108,11 @@ def run_backup(token, config_id):
         log_error(f"Error: {e}")
 
 def main():
-    parser = argparse.ArgumentParser(description="PatchMaster Backup CLI")
+    parser = argparse.ArgumentParser(description="Patch-SecOps Solution Backup CLI")
     subparsers = parser.add_subparsers(dest="command")
 
     # Login
-    login_parser = subparsers.add_parser("login", help="Authenticate with PatchMaster")
+    login_parser = subparsers.add_parser("login", help="Authenticate with Patch-SecOps Solution")
     login_parser.add_argument("--username", required=True)
     login_parser.add_argument("--password", required=True)
 

@@ -208,6 +208,9 @@ async def _resolve_websocket_user(websocket: WebSocket) -> Optional[User]:
         username = payload.get("sub")
         if not username:
             return None
+        # F4: reset/refresh-purpose tokens must never open a websocket.
+        if payload.get("type", "access") != "access":
+            return None
     except InvalidTokenError:
         return None
 
@@ -405,7 +408,7 @@ async def test_channel(
         raise HTTPException(404, "Channel not found")
     try:
         await _send_notification(
-            channel, "Test Notification", "This is a test from PatchMaster."
+            channel, "Test Notification", "This is a test from Patch-SecOps Solution."
         )
         return {"status": "sent"}
     except Exception as e:

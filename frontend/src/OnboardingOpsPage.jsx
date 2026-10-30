@@ -86,7 +86,7 @@ export default function OnboardingOpsPage({ AppIcon }) {
       detail: 'The hostname or IP entered above is used in the copied commands.',
     },
     {
-      title: 'Allow HTTP or HTTPS access to the PatchMaster download endpoint.',
+      title: 'Allow HTTP or HTTPS access to the Patch-SecOps Solution download endpoint.',
       detail: `Operators download packages from ${downloadBase}/download/.`,
     },
     {

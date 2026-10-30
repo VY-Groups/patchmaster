@@ -1,5 +1,5 @@
 """
-Windows Snapshot Management API for PatchMaster.
+Windows Snapshot Management API for Patch-SecOps Solution.
 
 Provides Windows-specific snapshot operations via VSS (Volume Shadow Copy Service).
 Supports creating, listing, rolling back, and deleting snapshots.

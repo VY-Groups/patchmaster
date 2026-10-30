@@ -1,10 +1,10 @@
 #!/bin/bash
 # Diagnose agent registration and visibility issues
-# Run this on the PatchMaster server
+# Run this on the Patch-SecOps Solution server
 
 set -e
 
-echo "=== PatchMaster Agent Diagnostics ==="
+echo "=== Patch-SecOps Solution Agent Diagnostics ==="
 echo ""
 
 # Colors

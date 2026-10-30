@@ -184,10 +184,11 @@ main() {
     cp "$ROOT_DIR"/Makefile "$PKG_TEMP_DIR/" 2>/dev/null || true
     cp "$ROOT_DIR"/README.md "$PKG_TEMP_DIR/" 2>/dev/null || true
 
-    # Include license key and authority env files
+    # license.key and the per-instance public/validation env may ship with the
+    # package (installer has designed flows for both); the vendor's authority
+    # keys must never be packaged (plan S0-1 F - supplied via SHARED_AUTHORITY_ENV).
     [[ -f "$ROOT_DIR/license.key" ]] && cp "$ROOT_DIR/license.key" "$PKG_TEMP_DIR/license.key" && echo "    [+] Included license.key"
     [[ -f "$ROOT_DIR/patchmaster-license-public.env" ]] && cp "$ROOT_DIR/patchmaster-license-public.env" "$PKG_TEMP_DIR/patchmaster-license-public.env" && echo "    [+] Included patchmaster-license-public.env"
-    [[ -f "$ROOT_DIR/patchmaster-license-authority.env" ]] && cp "$ROOT_DIR/patchmaster-license-authority.env" "$PKG_TEMP_DIR/patchmaster-license-authority.env" && echo "    [+] Included patchmaster-license-authority.env"
     cp "$ROOT_DIR"/.env.production "$PKG_TEMP_DIR/" 2>/dev/null || true
     cp "$ROOT_DIR"/auto-setup.* "$PKG_TEMP_DIR/" 2>/dev/null || true
 

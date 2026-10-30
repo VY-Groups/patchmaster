@@ -1,13 +1,14 @@
 """Agent registration & heartbeat — persisted to PostgreSQL."""
 
 from datetime import datetime, timezone
-from fastapi import APIRouter, Request, Depends
+from fastapi import APIRouter, HTTPException, Request, Depends
 from pydantic import BaseModel, Field
 from sqlalchemy import delete, insert, select
 from sqlalchemy import inspect as sa_inspect
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from uuid import uuid4
+import os
 
 from database import get_db
 from models.db_models import Host, HostGroup, host_group_assoc
@@ -15,6 +16,13 @@ from prometheus_targets import sync_prometheus_agent_targets
 from sqlalchemy import text
 
 router = APIRouter(tags=["agent"])
+
+
+def _bearer_token(request: Request) -> str:
+    auth = request.headers.get("authorization", "")
+    if auth[:7].lower() == "bearer ":
+        return auth[7:].strip()
+    return ""
 
 
 class RegisterRequest(BaseModel):
@@ -87,6 +95,12 @@ OS_FAMILY_GROUPS = {
     "solaris": ("Solaris", "Solaris hosts (IPS/pkg)"),
     "hpux": ("HP-UX", "HP-UX hosts (SD-UX/swinstall)"),
     "aix": ("AIX", "AIX hosts (installp/NIM)"),
+    # _detect_os_family() can return these too; a missing key 500s the whole
+    # registration after the host row is created, so the agent never gets its
+    # token (found by the S0-8 fleet's first Alpine registration).
+    "arch": ("Arch", "Arch/Manjaro hosts (pacman)"),
+    "alpine": ("Alpine", "Alpine hosts (apk)"),
+    "opensuse": ("openSUSE", "openSUSE hosts (zypper)"),
     "other": ("Other", "Other/unknown OS family"),
 }
 
@@ -205,7 +219,7 @@ async def _ensure_host_schema(db: AsyncSession) -> None:
 
 async def _ensure_os_family_group(db: AsyncSession, host: Host, os_name: str) -> None:
     family = _detect_os_family(os_name)
-    group_name, desc = OS_FAMILY_GROUPS[family]
+    group_name, desc = OS_FAMILY_GROUPS.get(family, OS_FAMILY_GROUPS["other"])
     desired = await _get_or_create_group(db, group_name, desc)
     family_names = {v[0] for v in OS_FAMILY_GROUPS.values()}
     state = sa_inspect(host)
@@ -354,7 +368,6 @@ async def register_agent(
     req: RegisterRequest, request: Request, db: AsyncSession = Depends(get_db)
 ):
     try:
-        await _ensure_host_schema(db)
         agent_token = str(uuid4())
         clean_ip = _effective_ip(request, req.ip)
         clean_agent_id = _clean_agent_id(req.agent_id)
@@ -367,6 +380,16 @@ async def register_agent(
             )
 
         if host:
+            # Credential gate (plan S0-1): only the holder of the current
+            # per-host token, or the operator's AGENT_API_TOKEN, may update an
+            # existing host or obtain a rotated token. Bootstrap (no token yet)
+            # stays open — a one-time enrolment token is a later plan item.
+            presented = _bearer_token(request)
+            host_token = (host.agent_token or "").strip()
+            if host_token and presented != host_token:
+                shared = os.getenv("AGENT_API_TOKEN", "").strip()
+                if not (shared and presented == shared):
+                    raise HTTPException(status_code=401, detail="unauthorized")
             if clean_agent_id:
                 host.agent_id = clean_agent_id
             # Update hostname even if it exists (agent may have renamed itself)
@@ -382,7 +405,10 @@ async def register_agent(
             host.kernel = req.kernel or host.kernel
             host.arch = req.arch or host.arch
             host.agent_version = req.agent_version or host.agent_version
-            host.agent_token = agent_token
+            if not (host_token and presented == host_token):
+                # Mint only for tokenless hosts or an authenticated rotation;
+                # a holder of the current token is never rotated.
+                host.agent_token = agent_token
             host.is_online = True
             host.last_heartbeat = _utcnow_naive()
             await _ensure_os_family_group(db, host, req.os)
@@ -417,7 +443,9 @@ async def register_agent(
                 "Prometheus target sync failed (register): %s", exc
             )
         await db.commit()
-        return {"agent_token": agent_token}
+        return {"agent_token": host.agent_token}
+    except HTTPException:
+        raise
     except Exception:
         import logging
 
@@ -430,7 +458,6 @@ async def register_agent(
 @router.post("/api/heartbeat")
 async def heartbeat(request: Request, db: AsyncSession = Depends(get_db)):
     try:
-        await _ensure_host_schema(db)
         body = await request.json()
         ip = _effective_ip(request, body.get("ip", ""))
         agent_id = _clean_agent_id(body.get("agent_id", ""))

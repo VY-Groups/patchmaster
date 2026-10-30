@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 ###############################################################################
 # PatchMaster Agent - Alpine Linux Package Builder
 # Creates .apk package for Alpine Linux

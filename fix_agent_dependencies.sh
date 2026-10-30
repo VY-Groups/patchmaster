@@ -1,5 +1,5 @@
 #!/bin/bash
-# Fix PatchMaster Agent missing Python dependencies
+# Fix Patch-SecOps Solution Agent missing Python dependencies
 # Run this on the AGENT machine (Ubuntu) to fix ModuleNotFoundError issues
 #
 # This script fixes:
@@ -10,7 +10,7 @@
 
 set -e
 
-echo "=== PatchMaster Agent Dependency Fix ==="
+echo "=== Patch-SecOps Solution Agent Dependency Fix ==="
 echo ""
 
 # Check if running as root

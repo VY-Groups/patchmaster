@@ -1,9 +1,9 @@
-# PatchMaster Product And Vendor Deployment SOP
+# Patch-SecOps Solution Product And Vendor Deployment SOP
 
 ## Purpose
 This document defines the exact deployment order for:
-- PatchMaster Product
-- PatchMaster Vendor Portal
+- Patch-SecOps Solution Product
+- Patch-SecOps Solution Vendor Portal
 
 It also defines how to handle private license authority files safely.
 
@@ -30,13 +30,13 @@ These files are internal only and must be stored securely:
 - Do not give `patchmaster-license-authority.env` to customers.
 - Do not deploy from `dist/private` directly.
 - Do not unpack internal private files into customer-facing delivery bundles.
-- PatchMaster customer installs must use the product tarball only.
+- Patch-SecOps Solution customer installs must use the product tarball only.
 - Vendor installs must use the vendor tarball only.
 - Keep `dist/private` only for backup, rebuild continuity, and disaster recovery.
 
 ## Deployment Order
 
-### 1. Deploy PatchMaster Product On Customer Server
+### 1. Deploy Patch-SecOps Solution Product On Customer Server
 Copy `patchmaster-product-2.0.0.tar.gz` to the customer server.
 
 Run:
@@ -87,8 +87,8 @@ systemctl status nginx --no-pager -n 20
 - Generate a testing or POC license first.
 - Share that testing key with the customer.
 
-### 4. Customer Activates Testing License In PatchMaster
-- Customer logs into PatchMaster.
+### 4. Customer Activates Testing License In Patch-SecOps Solution
+- Customer logs into Patch-SecOps Solution.
 - Customer opens the License page.
 - Customer pastes the testing license.
 - Customer activates the testing license.
@@ -102,7 +102,7 @@ systemctl status nginx --no-pager -n 20
 - Vendor shares the final production key with the customer.
 
 ### 7. Customer Activates Final Production License
-- Customer opens the License page in PatchMaster.
+- Customer opens the License page in Patch-SecOps Solution.
 - Customer pastes the final production license.
 - Customer activates it.
 

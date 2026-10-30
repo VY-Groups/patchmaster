@@ -1,9 +1,9 @@
 """
-Jira Integration for PatchMaster.
+Jira Integration for Patch-SecOps Solution.
 
 Supports Jira Cloud and Server instances via REST API.
 Creates issues, updates status, adds comments.
-Maps PatchMaster events to Jira workflow states.
+Maps Patch-SecOps Solution events to Jira workflow states.
 """
 
 import os
@@ -25,7 +25,7 @@ class JiraIssueType(str, Enum):
 
 
 class JiraPriority(str, Enum):
-    """Jira priority mapping from PatchMaster severity."""
+    """Jira priority mapping from Patch-SecOps Solution severity."""
 
     HIGHEST = "Highest"
     HIGH = "High"
@@ -44,7 +44,7 @@ class JiraWorkflowStatus(str, Enum):
     CLOSED = "Closed"
 
 
-# Map PatchMaster event types to Jira issue types and priorities
+# Map Patch-SecOps Solution event types to Jira issue types and priorities
 EVENT_ISSUE_TYPE_MAP = {
     "patch_failed": (JiraIssueType.BUG, JiraPriority.HIGH),
     "patch_success": (JiraIssueType.TASK, JiraPriority.MEDIUM),
@@ -55,7 +55,7 @@ EVENT_ISSUE_TYPE_MAP = {
     "schedule_missed": (JiraIssueType.TASK, JiraPriority.MEDIUM),
 }
 
-# Map PatchMaster action types to Jira transitions
+# Map Patch-SecOps Solution action types to Jira transitions
 ACTION_TRANSITION_MAP = {
     "start_progress": "Start Progress",
     "resolve": "Resolve",

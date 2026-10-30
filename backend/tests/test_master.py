@@ -154,45 +154,68 @@ def _make_pm2_key(no_bind: bool, signing_private_key: Ed25519PrivateKey, decrypt
     return f"PM2-{header_b64}.{envelope_b64}.{signature}"
 
 
+def _pm2_license(monkeypatch, no_bind: bool, hw_id: str = "", days: int = 30) -> str:
+    """Build a PM2 key and wire its test keypair into license._load_setting.
+
+    PM2 is the only accepted format (decode_license rejects anything else),
+    so tests that need a decodable key must go through this helper.
+    """
+    signing_private_key = Ed25519PrivateKey.generate()
+    verify_public_key = base64.urlsafe_b64encode(
+        signing_private_key.public_key().public_bytes(
+            encoding=serialization.Encoding.Raw,
+            format=serialization.PublicFormat.Raw,
+        )
+    ).decode().rstrip("=")
+    decrypt_private_key = X25519PrivateKey.generate()
+    decrypt_private_b64 = base64.urlsafe_b64encode(
+        decrypt_private_key.private_bytes(
+            encoding=serialization.Encoding.Raw,
+            format=serialization.PrivateFormat.Raw,
+            encryption_algorithm=serialization.NoEncryption(),
+        )
+    ).decode().rstrip("=")
+    key = _make_pm2_key(
+        no_bind=no_bind,
+        hw_id=hw_id,
+        days=days,
+        signing_private_key=signing_private_key,
+        decrypt_private_key=decrypt_private_key,
+    )
+    original_load_setting = lic._load_setting
+
+    def fake_load_setting(name: str) -> str:
+        if name == "LICENSE_VERIFY_PUBLIC_KEY":
+            return verify_public_key
+        if name == "LICENSE_DECRYPT_PRIVATE_KEY":
+            return decrypt_private_b64
+        if name == "LICENSE_SIGN_KEY":
+            return ""
+        return original_load_setting(name)
+
+    monkeypatch.setattr(lic, "_load_setting", fake_load_setting)
+    return key
+
+
 # ── License tests ──
 def test_license_allows_no_bind(monkeypatch):
-    key = _make_key(no_bind=True, hw_id="00:11:22:33:44:55")
+    key = _pm2_license(monkeypatch, no_bind=True, hw_id="00:11:22:33:44:55")
     monkeypatch.setattr(lic, "get_mac_addresses", lambda: ["aa:bb:cc:dd:ee:ff"])
     payload = lic.decode_license(key)
     assert payload["no_bind"] is True
     assert payload["hw_id"] == ""
 
 
-def test_license_enforces_binding(monkeypatch):
-    key = _make_key(no_bind=False, hw_id="00:11:22:33:44:55")
+def test_license_rejects_legacy_pm1_format(monkeypatch):
+    """PM1 keys (plaintext HMAC and Ed25519) must be refused: only encrypted PM2 is accepted."""
     monkeypatch.setattr(lic, "get_mac_addresses", lambda: ["aa:bb:cc:dd:ee:ff"])
-    with pytest.raises(lic.LicenseError):
-        lic.decode_license(key)
-
-
-def test_license_accepts_public_key_signed_license(monkeypatch):
-    private_key = Ed25519PrivateKey.generate()
-    public_key = base64.urlsafe_b64encode(
-        private_key.public_key().public_bytes(
-            encoding=serialization.Encoding.Raw,
-            format=serialization.PublicFormat.Raw,
-        )
-    ).decode().rstrip("=")
-    key = _make_public_key(no_bind=True, private_key=private_key)
-    original_load_setting = lic._load_setting
-
-    def fake_load_setting(name: str) -> str:
-        if name == "LICENSE_VERIFY_PUBLIC_KEY":
-            return public_key
-        if name == "LICENSE_SIGN_KEY":
-            return ""
-        return original_load_setting(name)
-
-    monkeypatch.setattr(lic, "_load_setting", fake_load_setting)
-    monkeypatch.setattr(lic, "get_mac_addresses", lambda: ["aa:bb:cc:dd:ee:ff"])
-    payload = lic.decode_license(key)
-    assert payload["license_id"] == "test-lic-pub"
-    assert payload["sig_alg"] == "ed25519"
+    legacy_hmac = _make_key(no_bind=True)
+    legacy_ed25519 = _make_public_key(
+        no_bind=True, private_key=Ed25519PrivateKey.generate()
+    )
+    for legacy_key in (legacy_hmac, legacy_ed25519):
+        with pytest.raises(lic.LicenseError, match="Only PM2"):
+            lic.decode_license(legacy_key)
 
 
 def test_license_accepts_pm2_encrypted_license(monkeypatch):
@@ -272,7 +295,7 @@ def test_license_pm2_enforces_binding(monkeypatch):
 
 def test_license_info_exposes_epochs_and_flags(monkeypatch, tmp_path):
     key_path = tmp_path / "license.key"
-    key = _make_key(no_bind=True)
+    key = _pm2_license(monkeypatch, no_bind=True)
     key_path.write_text(key)
 
     monkeypatch.setattr(lic, "LICENSE_FILE", str(key_path))
@@ -288,16 +311,16 @@ def test_license_info_exposes_epochs_and_flags(monkeypatch, tmp_path):
 
 
 def test_decode_license_accepts_wrapped_vendor_text(monkeypatch):
-    key = _make_key(no_bind=True)
+    key = _pm2_license(monkeypatch, no_bind=True)
     wrapped = f"License key:\n\n  {key}\n\nUse this in PatchMaster."
     monkeypatch.setattr(lic, "get_mac_addresses", lambda: ["aa:bb:cc:dd:ee:ff"])
     payload = lic.decode_license(wrapped)
-    assert payload["license_id"] == "test-lic"
+    assert payload["license_id"] == "test-lic-pm2"
 
 
 def test_license_info_reads_json_wrapped_key_file(monkeypatch, tmp_path):
     key_path = tmp_path / "license.key"
-    key = _make_key(no_bind=True)
+    key = _pm2_license(monkeypatch, no_bind=True)
     key_path.write_text(json.dumps({"license_key": key}))
 
     monkeypatch.setattr(lic, "LICENSE_FILE", str(key_path))
@@ -306,7 +329,7 @@ def test_license_info_reads_json_wrapped_key_file(monkeypatch, tmp_path):
     info = lic.get_license_info(force_refresh=True)
     assert info["valid"] is True
     assert info["activated"] is True
-    assert info["license_id"] == "test-lic"
+    assert info["license_id"] == "test-lic-pm2"
 
 
 # ── Monitoring manager tests (systemd calls stubbed) ──
@@ -686,7 +709,7 @@ def test_health_endpoint(monkeypatch, tmp_path):
 
 def test_license_status_endpoint(monkeypatch, tmp_path):
     key_path = tmp_path / "license.key"
-    key = _make_key(no_bind=True)
+    key = _pm2_license(monkeypatch, no_bind=True)
     key_path.write_text(key)
 
     monkeypatch.setattr(lic, "LICENSE_FILE", str(key_path))

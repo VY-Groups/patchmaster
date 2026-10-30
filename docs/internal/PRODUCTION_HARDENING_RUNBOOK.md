@@ -1,4 +1,4 @@
-# PatchMaster Production Hardening Runbook
+# Patch-SecOps Solution Production Hardening Runbook
 
 ## Scope
 
@@ -17,16 +17,21 @@ This runbook covers enterprise hardening for:
 
 ## 2) Apply Schema Migration
 
-Migration file:
-- `backend/migrations/20260329_enterprise_rollout_foundation.sql`
+Migrations are applied automatically: on startup the backend runs the alembic
+chain (`backend/alembic/versions/`), which bootstraps the model schema and then
+runs the dated scripts in `backend/migrations/` in date order. Nothing to apply
+by hand.
 
-Example command (PostgreSQL):
+To apply or inspect them manually (same commands the backend runs):
 
 ```bash
-psql "$DATABASE_URL" -f backend/migrations/20260329_enterprise_rollout_foundation.sql
+cd backend
+python -m alembic current          # where this database is
+python -m alembic upgrade head     # apply everything pending
+python -m alembic history          # the chain, including the converted scripts
 ```
 
-Validation SQL:
+Validation SQL (confirm the enterprise rollout tables exist):
 
 ```sql
 SELECT tablename

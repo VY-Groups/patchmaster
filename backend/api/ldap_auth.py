@@ -84,7 +84,7 @@ def _ldap_connect(cfg: LDAPConfig):
 
 
 def _resolve_role(cfg: LDAPConfig, member_of: list[str]) -> UserRole:
-    """Map AD group membership to a PatchMaster role."""
+    """Map AD group membership to a Patch-SecOps Solution role."""
     if cfg.admin_group_dn and any(cfg.admin_group_dn.lower() in g.lower() for g in member_of):
         return UserRole.admin
     if cfg.operator_group_dn and any(cfg.operator_group_dn.lower() in g.lower() for g in member_of):

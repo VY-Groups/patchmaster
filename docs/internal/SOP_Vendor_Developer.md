@@ -69,13 +69,13 @@ We currently use **SQLAlchemy Async**.
 
 ### **Modifying the Schema**
 1. Edit `backend/models/db_models.py`.
-2. **Migration Tool**: We use `alembic` (or manual initialization in `database.py` for simplicity in v2.0).
-   - *Current State*: `database.py` calls `base.metadata.create_all` on startup.
-   - *Action*: If you change a column, you must either:
-     - A) Manually run `ALTER TABLE` SQL on existing DBs.
-     - B) Drop the table (dev only) and restart.
+2. **Migration Tool**: alembic (`backend/alembic.ini`, chain in `backend/alembic/versions/`).
+   - *Current State*: `database.py` runs `alembic upgrade head` on startup, then adds whatever the models declare and the database is missing (tables, columns, indexes) - additive only, it never drops.
+   - *Action*: adding a table/column/index that needs no backfill is just a model change -
+     the startup reconcile picks it up. Reversible or data-transforming changes get their
+     own revision.
 
-**Best Practice**: For production changes, write a SQL script in `backend/migrations/` (create folder if needed) and document it in the PR.
+**Best Practice**: generate a revision with `alembic revision --autogenerate -m "<what and why>"` and put the DDL in it, documented in the PR. The dated scripts in `backend/migrations/` are already converted into the chain (revision `20261025_0002`) - do not add new ones.
 
 ---
 

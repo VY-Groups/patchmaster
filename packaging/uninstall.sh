@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env bash
+#!/usr/bin/env bash
 ###############################################################################
 #  PatchMaster Uninstaller
 #  Removes PatchMaster stack and optionally all data.

@@ -3,8 +3,8 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc
 from database import async_session, get_db
-from models.db_models import BackupConfig, BackupLog, BackupType, JobStatus, User, Host
-from auth import get_current_user
+from models.db_models import BackupConfig, BackupLog, BackupType, JobStatus, User, UserRole, Host
+from auth import get_current_user, require_role
 from api.ops_queue import enqueue_operation
 from license import TIER_FEATURES, get_license_info
 from api.cicd_secrets import decrypt_json_field, decrypt_text_field, encrypt_json_field, encrypt_text_field
@@ -363,7 +363,7 @@ async def check_schedules(db: AsyncSession):
 async def create_backup_config(
     config: BackupConfigCreate, 
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_role(UserRole.admin, UserRole.operator))
 ):
     try:
         b_type = BackupType(config.backup_type)
@@ -419,7 +419,7 @@ async def run_backup(
     request: Request,
     wait: bool = Query(False),
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_role(UserRole.admin, UserRole.operator))
 ):
     request_id = str(getattr(getattr(request, "state", object()), "request_id", "") or "")
     trace_token = str(getattr(getattr(request, "state", object()), "trace_token", "") or "")
@@ -448,7 +448,10 @@ async def get_backup_logs(
     return [BackupLogResponse.from_orm_obj(r) for r in result.scalars().all()]
 
 @router.post("/storage/test")
-async def test_storage_destination(body: StorageTestRequest):
+async def test_storage_destination(
+    body: StorageTestRequest,
+    current_user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
+):
     stype = body.storage_type.lower()
     cfg = body.storage_config or {}
     if stype == "local":
@@ -468,7 +471,7 @@ async def restore_backup(
     config_id: int,
     body: RestoreRequest,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_role(UserRole.admin, UserRole.operator))
 ):
     result = await db.execute(select(BackupConfig).where(BackupConfig.id == config_id))
     config = result.scalar_one_or_none()

@@ -1,4 +1,4 @@
-# PatchMaster Agent Troubleshooting Runbook
+# Patch-SecOps Solution Agent Troubleshooting Runbook
 
 ## Scope
 
@@ -52,9 +52,9 @@ Default Windows dedicated agent API port is `18080` (to avoid 8080 conflicts wit
 Run as Administrator:
 
 ```powershell
-netsh advfirewall firewall add rule name="PatchMaster API 8080 In" dir=in action=allow protocol=TCP localport=8080 profile=any
-netsh advfirewall firewall add rule name="PatchMaster Metrics 9100 In" dir=in action=allow protocol=TCP localport=9100 profile=any
-netsh advfirewall firewall add rule name="PatchMaster Metrics 9101 In" dir=in action=allow protocol=TCP localport=9101 profile=any
+netsh advfirewall firewall add rule name="Patch-SecOps Solution API 8080 In" dir=in action=allow protocol=TCP localport=8080 profile=any
+netsh advfirewall firewall add rule name="Patch-SecOps Solution Metrics 9100 In" dir=in action=allow protocol=TCP localport=9100 profile=any
+netsh advfirewall firewall add rule name="Patch-SecOps Solution Metrics 9101 In" dir=in action=allow protocol=TCP localport=9101 profile=any
 ```
 
 ## 5) Windows Port Proxy (WSL / Same-IP Dual Agent Scenario)

@@ -7,7 +7,7 @@
 VERSION="${1:-2.0.0}"
 
 echo "═══════════════════════════════════════════════════════════"
-echo "  PatchMaster Package Verification"
+echo "  Patch-SecOps Solution Package Verification"
 echo "═══════════════════════════════════════════════════════════"
 echo ""
 

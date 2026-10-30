@@ -437,7 +437,7 @@ async def bootstrap_monitoring(user=Depends(require_role(UserRole.admin))):
         dash_file = dash_dir / "patchmaster-overview.json"
         if not dash_file.exists():
             dash_file.write_text(
-                '{"dashboard":{"title":"PatchMaster Overview","panels":[]}, "overwrite": true}',
+                '{"dashboard":{"title":"Patch-SecOps Solution Overview","panels":[]}, "overwrite": true}',
                 encoding="utf-8",
             )
 
@@ -465,7 +465,7 @@ async def bootstrap_monitoring(user=Depends(require_role(UserRole.admin))):
             "datasources": [
                 {
                     "uid": "patchmaster-prometheus",
-                    "name": "PatchMaster Prometheus",
+                    "name": "Patch-SecOps Solution Prometheus",
                     "type": "prometheus",
                     "access": "proxy",
                     "url": f"http://localhost:{PROMETHEUS_PORT}{PROMETHEUS_PROXY_PREFIX.rstrip('/')}",

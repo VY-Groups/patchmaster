@@ -32,7 +32,8 @@ def run_cmd(cmd, ignore_errors=True):
     """Run command and return success status"""
     try:
         if IS_WINDOWS:
-            result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+            # reason: every run_cmd caller passes a hardcoded literal command (no interpolation)
+            result = subprocess.run(cmd, shell=True, capture_output=True, text=True)  # nosec B602
         else:
             result = subprocess.run(cmd, shell=False, capture_output=True, text=True)
         return result.returncode == 0

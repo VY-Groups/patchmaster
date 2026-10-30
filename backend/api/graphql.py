@@ -1,4 +1,4 @@
-"""GraphQL API - Query PatchMaster data via GraphQL."""
+"""GraphQL API - Query Patch-SecOps Solution data via GraphQL."""
 
 import os
 import logging
@@ -8,7 +8,9 @@ import strawberry
 from strawberry.fastapi import GraphQLRouter
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import Depends
 
+from auth import get_current_user
 from database import async_session
 from models.db_models import Host, PatchJob, User, CVE
 
@@ -18,7 +20,7 @@ logger = logging.getLogger(__name__)
 # --- GraphQL Types ---
 
 
-@strawberry.type(description="A host in PatchMaster")
+@strawberry.type(description="A host in Patch-SecOps Solution")
 class HostType:
     id: int
     hostname: str
@@ -287,9 +289,15 @@ schema = strawberry.Schema(query=Query, mutation=Mutation)
 
 
 def create_graphql_router() -> GraphQLRouter:
-    """Create and configure the GraphQL router."""
+    """Create and configure the GraphQL router.
+
+    Every request must carry a valid access token (plan S0-1): the schema
+    exposes host IPs/tenants and a create_host write mutation, so it is not
+    read-only despite the old comment in main.py.
+    """
     return GraphQLRouter(
         schema,
         path="/graphql",
         graphql_ide="graphiql",
+        dependencies=[Depends(get_current_user)],
     )

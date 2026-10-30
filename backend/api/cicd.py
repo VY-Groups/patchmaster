@@ -26,6 +26,7 @@ def _utcnow() -> datetime:
 
 from database import get_db
 from auth import get_current_user, require_role
+from validators import validate_filename
 from api.auth_api import get_effective_permissions
 from api.cicd_secrets import (
     decrypt_json_field,
@@ -1455,7 +1456,7 @@ async def test_connection(
 
     try:
         if pipeline.tool == "internal":
-            return {"ok": True, "status_code": 200, "message": "PatchMaster internal CI/CD engine is active."}
+            return {"ok": True, "status_code": 200, "message": "Patch-SecOps Solution internal CI/CD engine is active."}
         headers = _build_jenkins_headers(pipeline)
         async with httpx.AsyncClient(timeout=10, verify=_CICD_TLS_VERIFY) as client:
             if pipeline.tool == "jenkins":
@@ -1491,7 +1492,7 @@ async def get_script_templates(user=Depends(get_current_user)):
             steps {
                 sh '''
                     curl -s $PATCHMASTER_URL/api/health
-                    echo "PatchMaster is reachable"
+                    echo "Patch-SecOps Solution is reachable"
                 '''
             }
         }
@@ -1519,7 +1520,7 @@ async def get_script_templates(user=Depends(get_current_user)):
             echo 'Patch pipeline completed successfully!'
         }
         failure {
-            echo 'Patch pipeline failed — check PatchMaster logs.'
+            echo 'Patch pipeline failed — check Patch-SecOps Solution logs.'
         }
     }
 }""",
@@ -1560,19 +1561,19 @@ verify_compliance:
         "shell": {
             "label": "Shell Script",
             "content": """#!/bin/bash
-# PatchMaster CI/CD Shell Script
+# Patch-SecOps Solution CI/CD Shell Script
 set -euo pipefail
 
 PATCHMASTER_URL="${PATCHMASTER_URL:-http://localhost:8000}"
 PM_TOKEN="${PM_TOKEN:-}"
 
-echo "=== PatchMaster CI/CD Pipeline ==="
+echo "=== Patch-SecOps Solution CI/CD Pipeline ==="
 echo "Server: $PATCHMASTER_URL"
 echo "Time: $(date -u)"
 
 # Health check
 echo "--- Health Check ---"
-curl -sf "$PATCHMASTER_URL/api/health" || { echo "FAIL: PatchMaster unreachable"; exit 1; }
+curl -sf "$PATCHMASTER_URL/api/health" || { echo "FAIL: Patch-SecOps Solution unreachable"; exit 1; }
 
 # Pre-patch snapshot
 echo "--- Creating Snapshot ---"
@@ -1597,7 +1598,7 @@ echo "=== Pipeline Complete ==="
 """,
         },
         "internal_v2": {
-            "label": "PatchMaster Internal CI/CD v2 (JSON)",
+            "label": "Patch-SecOps Solution Internal CI/CD v2 (JSON)",
             "content": json.dumps(_internal_v2_template(), indent=2),
         },
     }
@@ -2589,6 +2590,10 @@ async def upload_artifact(
     target_dir = ARTIFACTS_DIR / f"build_{build_id}"
     target_dir.mkdir(parents=True, exist_ok=True)
     filename = file.filename or f"artifact_{secrets.token_hex(4)}"
+    # F15: client-supplied name must not escape target_dir.
+    name_check = validate_filename(filename)
+    if not name_check.is_valid:
+        raise HTTPException(400, name_check.message)
     dest = target_dir / filename
     content = await file.read()
     dest.write_bytes(content)
@@ -2605,7 +2610,13 @@ async def upload_artifact(
 
 
 @router.get("/artifacts/{build_id}/{filename}")
-async def download_artifact(build_id: int, filename: str):
+async def download_artifact(
+    build_id: int, filename: str, user: User = Depends(get_current_user)
+):
+    # F14: artifacts are authenticated; filename must not escape build dir.
+    name_check = validate_filename(filename)
+    if not name_check.is_valid:
+        raise HTTPException(400, name_check.message)
     path = ARTIFACTS_DIR / f"build_{build_id}" / filename
     if not path.is_file():
         raise HTTPException(404, "Artifact not found")

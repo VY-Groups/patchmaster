@@ -80,7 +80,7 @@ PLUGIN_SDK_DOCS = """
 # Plugin Development SDK
 
 ## Overview
-The PatchMaster Plugin SDK allows you to extend PatchMaster functionality by integrating
+The Patch-SecOps Solution Plugin SDK allows you to extend Patch-SecOps Solution functionality by integrating
 with external systems. Plugins can react to lifecycle events or send data to external APIs.
 
 ## Plugin Types

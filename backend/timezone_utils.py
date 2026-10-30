@@ -1,5 +1,5 @@
 """
-Timezone Utilities for PatchMaster.
+Timezone Utilities for Patch-SecOps Solution.
 
 Provides common timezone conversion and handling functions.
 Ensures consistent timezone handling throughout the application.

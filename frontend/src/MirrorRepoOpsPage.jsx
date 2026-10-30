@@ -112,7 +112,7 @@ export default function MirrorRepoOpsPage({ API, apiFetch, AppIcon }) {
     try {
       const response = await apiFetch(`${API}/api/hosts/?ts=${Date.now()}`);
       const payload = await response.json();
-      const list = Array.isArray(payload) ? payload : [];
+      const list = Array.isArray(payload) ? payload : (Array.isArray(payload?.items) ? payload.items : []);
       setHosts(list);
       if (!compareHostId && list.length) {
         setCompareHostId(String(list[0].id));

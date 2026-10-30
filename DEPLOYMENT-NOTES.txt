@@ -1,4 +1,4 @@
-PatchMaster 2.0.1 - Deployment Notes
+Patch-SecOps Solution 2.0.1 - Deployment Notes
 =====================================
 
 WHAT'S FIXED IN 2.0.1:
@@ -29,7 +29,7 @@ Option 1: Manual Deployment
    tar -xzf patchmaster-2.0.1.tar.gz
    bash packaging/install-bare.sh
 
-3. Access PatchMaster:
+3. Access Patch-SecOps Solution:
    http://172.24.1.254:3000
 
 Option 2: Automated Deployment
@@ -58,9 +58,9 @@ On agent machine (agent@agent):
 
 VERIFICATION:
 -------------
-1. Check PatchMaster web UI: http://172.24.1.254:3000
+1. Check Patch-SecOps Solution web UI: http://172.24.1.254:3000
 2. Check backend API: http://172.24.1.254:8000/api/health
-3. Check agent registration in PatchMaster UI under "Agents" page
+3. Check agent registration in Patch-SecOps Solution UI under "Agents" page
 4. Verify Groups & Tags page loads without WebSocket errors
 
 TROUBLESHOOTING:

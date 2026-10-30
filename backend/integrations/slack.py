@@ -1,8 +1,8 @@
 """
-Slack Integration for PatchMaster.
+Slack Integration for Patch-SecOps Solution.
 
 Supports channels, DMs, threads, and rich message formatting (blocks).
-Maps PatchMaster events to Slack messages.
+Maps Patch-SecOps Solution events to Slack messages.
 """
 
 import os
@@ -28,7 +28,7 @@ class SlackMessageType(str, Enum):
     COMPACT = "compact"
 
 
-# Map PatchMaster events to Slack message templates
+# Map Patch-SecOps Solution events to Slack message templates
 EVENT_MESSAGE_TEMPLATES = {
     "patch_failed": {
         "emoji": ":x:",
@@ -127,7 +127,7 @@ class SlackIntegration:
         self,
         text: str,
         channel: Optional[str] = None,
-        username: str = "PatchMaster",
+        username: str = "Patch-SecOps Solution",
         icon_emoji: str = ":robot_face:",
     ) -> dict[str, Any]:
         """Send message via incoming webhook.
@@ -162,7 +162,7 @@ class SlackIntegration:
         channel: Optional[str] = None,
         blocks: Optional[list[dict]] = None,
         thread_ts: Optional[str] = None,
-        username: str = "PatchMaster",
+        username: str = "Patch-SecOps Solution",
         icon_emoji: str = ":robot_face:",
     ) -> dict[str, Any]:
         """Send message via chat.postMessage API.
@@ -213,7 +213,7 @@ class SlackIntegration:
         color: Optional[str] = None,
         channel: Optional[str] = None,
     ) -> dict[str, Any]:
-        """Send rich message with blocks for a PatchMaster event.
+        """Send rich message with blocks for a Patch-SecOps Solution event.
 
         Args:
             event_type: Type of event (from EVENT_MESSAGE_TEMPLATES)
@@ -229,7 +229,7 @@ class SlackIntegration:
 
         emoji = template.get("emoji", ":bell:")
         template_color = template.get("color", "#439FE0")
-        template_title = template.get("title", "PatchMaster Alert")
+        template_title = template.get("title", "Patch-SecOps Solution Alert")
 
         # Build rich message blocks
         blocks: list[dict[str, Any]] = [

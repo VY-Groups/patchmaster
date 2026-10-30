@@ -1,4 +1,4 @@
-"""Prometheus metrics for PatchMaster backend."""
+"""Prometheus metrics for Patch-SecOps Solution backend."""
 import time
 from prometheus_client import (
     Counter, Gauge, Histogram, Info,
@@ -32,7 +32,7 @@ jobs_by_status = Gauge("patchmaster_jobs_by_status", "Patch jobs by status", ["s
 api_latency = Histogram("patchmaster_api_request_duration_seconds", "API request latency", ["method", "path"])
 
 # ── Info ──
-app_info = Info("patchmaster", "PatchMaster application info")
+app_info = Info("patchmaster", "Patch-SecOps Solution application info")
 app_info.info({"version": "2.0.0", "component": "backend"})
 
 

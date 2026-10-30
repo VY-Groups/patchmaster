@@ -168,7 +168,7 @@ export default function PolicyManagerPage({ API, apiFetch }) {
     <div>
       <div className="card highlight-card">
         <h2>Configuration Policies And Admin Tasks</h2>
-        <p>PatchMaster now supports policy revisions, explicit activation, dry-runs, apply history, rollback, and reusable operator tasks from one workspace.</p>
+        <p>Patch-SecOps Solution now supports policy revisions, explicit activation, dry-runs, apply history, rollback, and reusable operator tasks from one workspace.</p>
       </div>
       {notice ? <div className="card" style={{ marginBottom: 16 }}><strong>Status:</strong> {notice}</div> : null}
 

@@ -1,7 +1,7 @@
 # Standard Operating Procedure: End User (Deep Dive)
 
 **Audience:** System Administrators, DevOps Engineers, and IT Operators.
-**Purpose:** Comprehensive guide to operating PatchMaster without external training. Covers daily workflows, edge cases, and disaster recovery.
+**Purpose:** Comprehensive guide to operating Patch-SecOps Solution without external training. Covers daily workflows, edge cases, and disaster recovery.
 **Version:** 2.1.0
 
 ---
@@ -172,7 +172,7 @@ Use this when you are unsure if an update will break dependencies.
 
 ## 8. Backup & Recovery (CLI)
 
-PatchMaster v2.0 includes a powerful CLI for managing backups.
+Patch-SecOps Solution v2.0 includes a powerful CLI for managing backups.
 
 ### **Quick Start**
 The tool is installed at `/usr/local/bin/patchmaster-backup`.

@@ -24,7 +24,11 @@ WHERE id IN (
     SELECT id FROM duplicates WHERE rn > 1
 );
 
--- Add the unique constraint
+-- Add the unique constraint (drop first: the models declare the same
+-- constraint, so create_all has often already created it)
+ALTER TABLE hosts
+DROP CONSTRAINT IF EXISTS uq_hosts_ip_hostname;
+
 ALTER TABLE hosts 
 ADD CONSTRAINT uq_hosts_ip_hostname 
 UNIQUE (ip, hostname);

@@ -56,8 +56,8 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         )
 
         # Remove sensitive headers
-        response.headers["Server"] = "PatchMaster"
-        response.headers["X-Powered-By"] = "PatchMaster"
+        response.headers["Server"] = "Patch-SecOps Solution"
+        response.headers["X-Powered-By"] = "Patch-SecOps Solution"
 
         return response
 

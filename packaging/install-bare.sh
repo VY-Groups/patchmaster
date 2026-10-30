@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env bash
+#!/usr/bin/env bash
 ###############################################################################
 #  PatchMaster by VYGROUP - Bare-Metal Installer
 #  Installs PatchMaster directly on a Linux server (no Docker required).
@@ -688,7 +688,7 @@ is_placeholder_secret() {
     local value="${1:-}"
     [[ -z "$value" ]] && return 0
     case "$value" in
-        changeme-*|CHANGE-ME|change-me|replace-me|REPLACE-ME|PatchMaster-License-SignKey-2026-Secure)
+        changeme*|CHANGE-ME*|change-me*|replace-me*|REPLACE-ME*|PatchMaster-License-SignKey-2026-Secure)
             return 0
             ;;
     esac

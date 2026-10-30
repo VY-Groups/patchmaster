@@ -1,4 +1,4 @@
-# PatchMaster Internal License And Release Architecture
+# Patch-SecOps Solution Internal License And Release Architecture
 
 ## 1. Build And Artifact Flow
 
@@ -20,20 +20,20 @@ flowchart LR
     C["Vendor Tarball"] --> D["patchmaster-vendor-2.0.0.tar.gz<br/>includes private authority bundle"]
     E["Internal Recovery Files"] --> F["dist/private/<br/>runtime + authority recovery copies"]
 
-    B --> G["PatchMaster Server"]
+    B --> G["Patch-SecOps Solution Server"]
     D --> H["Vendor Server"]
     F --> I["Operator secure storage"]
 ```
 
-## 3. PatchMaster Install Flow
+## 3. Patch-SecOps Solution Install Flow
 
 ```mermaid
 flowchart TD
     A["Operator copies customer product tarball"] --> B["Extract patchmaster-product-2.0.0.tar.gz"]
     B --> C["Run packaging/install-bare.sh"]
     C --> D["Installer reads bundled patchmaster-license-public.env"]
-    D --> E["Writes LICENSE_VERIFY_PUBLIC_KEY + LICENSE_DECRYPT_PRIVATE_KEY<br/>into PatchMaster env"]
-    E --> F["PatchMaster verifies and decrypts licenses locally"]
+    D --> E["Writes LICENSE_VERIFY_PUBLIC_KEY + LICENSE_DECRYPT_PRIVATE_KEY<br/>into Patch-SecOps Solution env"]
+    E --> F["Patch-SecOps Solution verifies and decrypts licenses locally"]
 ```
 
 ## 4. Vendor Install Flow
@@ -53,22 +53,22 @@ flowchart TD
 ```mermaid
 flowchart LR
     A["Vendor records customer and purchase"] --> B["Issue POC or testing license"]
-    B --> C["Customer activates testing license in PatchMaster"]
+    B --> C["Customer activates testing license in Patch-SecOps Solution"]
     C --> D["Customer shares verified hardware or MAC ID with Vendor"]
     D --> E["Vendor updates customer record with final binding ID"]
     E --> F["Vendor generates final bound PM2 license"]
-    F --> G["Customer activates final PM2 in PatchMaster"]
-    H["PatchMaster runtime license bundle"] --> I["Verify Ed25519 signature and decrypt claims locally"]
+    F --> G["Customer activates final PM2 in Patch-SecOps Solution"]
+    H["Patch-SecOps Solution runtime license bundle"] --> I["Verify Ed25519 signature and decrypt claims locally"]
     G --> I
     I -->|Valid| J["License accepted"]
     I -->|Invalid| K["Signature, decrypt, or binding validation failed"]
 ```
 
 ### Runtime Clarification
-- PatchMaster verifies and decrypts the license locally with its bundled runtime license material.
+- Patch-SecOps Solution verifies and decrypts the license locally with its bundled runtime license material.
 - Customer POC or testing happens on the customer side before the final bound license is generated.
 - Vendor records the customer hardware or MAC ID in the Vendor portal and uses that stored binding ID for final license generation.
-- Vendor public internet exposure is not required for PatchMaster license verification.
+- Vendor public internet exposure is not required for Patch-SecOps Solution license verification.
 
 ## 6. Trust Boundary
 
@@ -85,9 +85,9 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A["Need Vendor and PatchMaster to work together"] --> B["Use product and vendor packages that share the same license authority set"]
+    A["Need Vendor and Patch-SecOps Solution to work together"] --> B["Use product and vendor packages that share the same license authority set"]
     B --> C["Vendor signs with the matching private key"]
-    B --> D["PatchMaster verifies and decrypts with the matching runtime bundle"]
+    B --> D["Patch-SecOps Solution verifies and decrypts with the matching runtime bundle"]
     C --> E["New PM2 licenses validate correctly"]
     D --> E
 ```
@@ -109,14 +109,14 @@ flowchart TD
 ### Recommended Internal Deployment
 1. Build artifacts with `bash scripts/build-stable.sh`
 2. Keep `dist/private/patchmaster-license-authority.env` private
-3. Deliver `dist/patchmaster-product-2.0.0.tar.gz` to the PatchMaster server
+3. Deliver `dist/patchmaster-product-2.0.0.tar.gz` to the Patch-SecOps Solution server
 4. Deliver `vendor/dist/patchmaster-vendor-2.0.0.tar.gz` to the Vendor server
-5. Install PatchMaster with `bash packaging/install-bare.sh --with-monitoring`
+5. Install Patch-SecOps Solution with `bash packaging/install-bare.sh --with-monitoring`
 6. Install Vendor with `bash install-vendor.sh`
 7. Use a POC or testing license first if you need the customer hardware or MAC ID for final binding
 8. Record that verified hardware or MAC ID in the Vendor portal
 9. Generate the final bound PM2 license after Vendor install completes
-10. Paste the newly generated PM2 license into PatchMaster
+10. Paste the newly generated PM2 license into Patch-SecOps Solution
 
 ### Internal Release Hygiene
 - Do not give `patchmaster-license-authority.env` to customers

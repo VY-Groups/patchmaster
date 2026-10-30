@@ -108,7 +108,7 @@ export default function LocalRepoOpsPage({ API, apiFetch, AppIcon }) {
             <div className="ops-hero-emphasis">
               <span className="ops-emphasis-label">Air-gapped stock</span>
               <span className="ops-emphasis-value" style={{ color: '#166534' }}>{numberFmt.format(packages.length)}</span>
-              <span className="ops-emphasis-meta">{formatSize(stats.totalStorage)} stored on the PatchMaster master node.</span>
+              <span className="ops-emphasis-meta">{formatSize(stats.totalStorage)} stored on the Patch-SecOps Solution master node.</span>
             </div>
             <div className="ops-hero-copy">
               <h3>Stage approved packages once, then distribute them to disconnected systems with confidence.</h3>

@@ -1,6 +1,6 @@
 #!/bin/bash
 ###############################################################################
-# PatchMaster Unified Package Builder
+# Patch-SecOps Solution Unified Package Builder
 # Single script to build all package types
 ###############################################################################
 
@@ -25,7 +25,7 @@ show_banner() {
     echo ""
     echo -e "${CYAN}╔════════════════════════════════════════════════════════════╗${NC}"
     echo -e "${CYAN}║                                                            ║${NC}"
-    echo -e "${CYAN}║         PatchMaster Unified Package Builder v${VERSION}        ║${NC}"
+    echo -e "${CYAN}║         Patch-SecOps Solution Unified Package Builder v${VERSION}        ║${NC}"
     echo -e "${CYAN}║                                                            ║${NC}"
     echo -e "${CYAN}╚════════════════════════════════════════════════════════════╝${NC}"
     echo ""

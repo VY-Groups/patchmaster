@@ -16,6 +16,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api.ops_queue import enqueue_operation
 from auth import require_role
 from database import async_session, get_db
+from evidence import create_bundle
+from gates.evaluator import evaluate_gates, decide, parse_gates
+from gates.model import GateStatus
 from models.db_models import (
     AuditLog,
     Host,
@@ -196,18 +199,19 @@ def _health_gate_for_host(host: Host, guardrails: dict[str, Any]) -> tuple[bool,
     return (len(reasons) == 0), reasons
 
 
-async def _maintenance_gate_for_hosts(session: AsyncSession, hosts: list[Host], guardrails: dict[str, Any]) -> tuple[list[Host], dict[str, Any]]:
+async def _maintenance_gate_for_hosts(session, hosts: list, guardrails: dict[str, Any], windows=None) -> tuple[list, dict[str, Any]]:
     maintenance = dict((guardrails or {}).get("maintenance") or {})
     if not maintenance.get("require_window", False):
         return hosts, {"enabled": False, "filtered": 0}
-    windows = (
-        await session.execute(
-            select(MaintenanceWindow).where(
-                MaintenanceWindow.is_active == True,
-                MaintenanceWindow.block_outside == True,
+    if windows is None:
+        windows = (
+            await session.execute(
+                select(MaintenanceWindow).where(
+                    MaintenanceWindow.is_active == True,
+                    MaintenanceWindow.block_outside == True,
+                )
             )
-        )
-    ).scalars().all()
+        ).scalars().all()
     if not windows:
         return [], {"enabled": True, "filtered": len(hosts), "reason": "no_active_blocking_windows"}
     now_utc = _utcnow()
@@ -270,8 +274,6 @@ async def _resolve_ring_hosts(session: AsyncSession, policy: RingRolloutPolicy, 
 
     stmt = select(Host).where(Host.is_online == True)
     family = str(policy.target_os_family or "").strip().lower()
-    if family and family != "any":
-        stmt = stmt.where(Host.os_family == family)
     if host_ids:
         ids = [int(v) for v in host_ids if str(v).isdigit()]
         if ids:
@@ -281,6 +283,13 @@ async def _resolve_ring_hosts(session: AsyncSession, policy: RingRolloutPolicy, 
         if gids:
             stmt = stmt.where(Host.groups.any(HostGroup.id.in_(gids)))
     rows = (await session.execute(stmt.order_by(Host.id.asc()))).scalars().all()
+    if family and family != "any":
+        try:
+            from api.register_v2 import _detect_os_family
+        except Exception:
+            _detect_os_family = None
+        if _detect_os_family is not None:
+            rows = [r for r in rows if _detect_os_family(getattr(r, "os", "") or "") == family]
     return list(rows)
 
 
@@ -300,6 +309,9 @@ async def _execute_rollout_run(run_id: int) -> dict[str, Any]:
         rings = list(policy.rings or _policy_default_rings())
         guardrails = dict(policy.guardrails or {})
         rollout_config = dict(policy.rollout_config or {})
+        restore_drill_cfg = rollout_config.get("restore_drill") if isinstance(rollout_config.get("restore_drill"), dict) else {}
+        gates_cfg = rollout_config.get("gates") if isinstance(rollout_config.get("gates"), dict) else {}
+        on_gate_failure = str((gates_cfg or {}).get("on_failure") or rollout_config.get("on_gate_failure") or "hold")
         approval_cfg = dict(rollout_config.get("approval") or {})
         require_approval = bool(approval_cfg.get("required", False))
         per_ring = bool(approval_cfg.get("per_ring", True))
@@ -314,6 +326,8 @@ async def _execute_rollout_run(run_id: int) -> dict[str, Any]:
         summary.setdefault("jobs_created", 0)
         summary.setdefault("guardrails", guardrails)
         summary.setdefault("gate_decisions", [])
+        summary.setdefault("gate_results", [])
+        summary.setdefault("restore_drill", restore_drill_cfg or {})
         summary.setdefault("approved_rings", [])
         summary.setdefault("approval_decisions", [])
         summary.setdefault("next_ring_index", 0)
@@ -388,6 +402,58 @@ async def _execute_rollout_run(run_id: int) -> dict[str, Any]:
                     )
 
                 base_hosts = await _resolve_ring_hosts(session, policy, ring or {})
+
+                # S1-1/S1-2: configured gates (pre-phase) for this ring.
+                gate_results_list = list(current_summary.get("gate_results") or [])
+                pre_gates = parse_gates(rollout_config, phase="pre", ring=ring)
+                if pre_gates:
+                    pre_ctx = {
+                        "hosts": base_hosts,
+                        "session": session,
+                        "guardrails": guardrails,
+                        "policy": policy,
+                        "ring": ring or {},
+                        "run_summary": current_summary,
+                        "maintenance_windows": None,
+                    }
+                    pre_results = await evaluate_gates(pre_gates, pre_ctx)
+                    pre_decision = decide(pre_results, pre_gates, on_failure=on_gate_failure)
+                    gate_results_list.append(
+                        {
+                            "ring_index": idx,
+                            "ring_name": ring_name,
+                            "phase": "pre",
+                            "results": [r.to_dict() for r in pre_results],
+                            "decision": pre_decision.outcome,
+                        }
+                    )
+                    gate_decisions.append(
+                        {
+                            "ring_index": idx,
+                            "ring_name": ring_name,
+                            "gate": "configured_gates",
+                            "phase": "pre",
+                            "decision": pre_decision.outcome,
+                            "failed_required": pre_decision.failed_required,
+                            "at": _utcnow().isoformat() + "Z",
+                        }
+                    )
+                    current_summary["gate_results"] = gate_results_list
+                    current_summary["gate_decisions"] = gate_decisions
+                    run.summary = current_summary
+                    await session.commit()
+                    if pre_decision.outcome != "promote":
+                        if pre_decision.outcome == "rollback":
+                            run.status = RingRolloutStatus.failed
+                        else:
+                            run.status = RingRolloutStatus.held
+                        run.completed_at = _utcnow()
+                        current_summary["error"] = "gate_failed_pre"
+                        run.summary = current_summary
+                        await session.commit()
+                        return {"status": pre_decision.outcome, "run_id": run_id,
+                                "error": "gate_failed_pre", "failed": pre_decision.failed_required}
+
                 healthy_hosts: list[Host] = []
                 health_blocked = 0
                 health_reason_counts: dict[str, int] = {}
@@ -444,6 +510,56 @@ async def _execute_rollout_run(run_id: int) -> dict[str, Any]:
                         await session.flush()
                         ring_jobs.append(job.id)
                 total_jobs += len(ring_jobs)
+
+                # S1-1/S1-2: configured gates (post-phase) for this ring.
+                post_gates = parse_gates(rollout_config, phase="post", ring=ring)
+                if post_gates:
+                    post_ctx = {
+                        "hosts": selected_hosts if selected_hosts else hosts,
+                        "session": session,
+                        "guardrails": guardrails,
+                        "policy": policy,
+                        "ring": ring or {},
+                        "run_summary": current_summary,
+                    }
+                    post_results = await evaluate_gates(post_gates, post_ctx)
+                    post_decision = decide(post_results, post_gates, on_failure=on_gate_failure)
+                    gate_results_list.append(
+                        {
+                            "ring_index": idx,
+                            "ring_name": ring_name,
+                            "phase": "post",
+                            "results": [r.to_dict() for r in post_results],
+                            "decision": post_decision.outcome,
+                        }
+                    )
+                    gate_decisions.append(
+                        {
+                            "ring_index": idx,
+                            "ring_name": ring_name,
+                            "gate": "configured_gates",
+                            "phase": "post",
+                            "decision": post_decision.outcome,
+                            "failed_required": post_decision.failed_required,
+                            "at": _utcnow().isoformat() + "Z",
+                        }
+                    )
+                    if post_decision.outcome != "promote":
+                        current_summary["gate_results"] = gate_results_list
+                        current_summary["gate_decisions"] = gate_decisions
+                        current_summary["error"] = "gate_failed_post"
+                        run.summary = current_summary
+                        await session.commit()
+                        if post_decision.outcome == "rollback":
+                            run.status = RingRolloutStatus.failed
+                        else:
+                            run.status = RingRolloutStatus.held
+                        run.completed_at = _utcnow()
+                        run.summary = current_summary
+                        await session.commit()
+                        return {"status": post_decision.outcome, "run_id": run_id,
+                                "error": "gate_failed_post", "failed": post_decision.failed_required}
+
                 rings_data.append(
                     {
                         "name": ring_name,
@@ -463,6 +579,7 @@ async def _execute_rollout_run(run_id: int) -> dict[str, Any]:
                 current_summary["jobs_created"] = total_jobs
                 current_summary["next_ring_index"] = idx + 1
                 current_summary["gate_decisions"] = gate_decisions
+                current_summary["gate_results"] = gate_results_list
                 current_summary.pop("awaiting_approval", None)
                 run.summary = current_summary
                 await session.commit()
@@ -760,6 +877,16 @@ async def approve_rollout_checkpoint(
         target_id=str(run.id),
         details={"ring_index": ring_index, "note": body.note.strip(), "queue_job_id": run.queue_job_id},
     )
+    try:
+        await create_bundle(
+            db,
+            job_id=str(run.id),
+            items=[{"step": "approval", "kind": "approval_granted",
+                    "payload": {"ring_index": ring_index, "by": getattr(current_user, "username", "system"),
+                                "note": body.note.strip()}}],
+        )
+    except Exception:
+        pass
     await db.commit()
     await db.refresh(run)
     return {"status": "accepted", "run": _serialize_run(run), "job": queue_job}

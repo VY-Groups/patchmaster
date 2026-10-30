@@ -579,7 +579,7 @@ async def register_webhook(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
-    """Register a PatchMaster webhook on the remote Git provider."""
+    """Register a Patch-SecOps Solution webhook on the remote Git provider."""
     result = await db.execute(select(GitRepository).where(GitRepository.id == repo_id))
     repo = result.scalars().first()
     if not repo:
@@ -599,7 +599,7 @@ async def register_webhook(
             repo.webhook_id = str(data.get("id", ""))
         elif repo.provider == "bitbucket":
             data = await _api_post(repo, f"{path}/hooks", {
-                "description": "PatchMaster webhook",
+                "description": "Patch-SecOps Solution webhook",
                 "url": hook_url, "active": True,
                 "events": ["repo:push", "pullrequest:created", "pullrequest:updated"],
             })

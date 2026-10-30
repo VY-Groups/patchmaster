@@ -98,7 +98,7 @@ def download_all_wheels():
 
 def main():
     """Main entry point"""
-    log("Python Wheel Downloader for PatchMaster")
+    log("Python Wheel Downloader for Patch-SecOps Solution")
     log("")
     
     # Check if pip is available

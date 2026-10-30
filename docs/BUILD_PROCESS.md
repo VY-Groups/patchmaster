@@ -1,10 +1,21 @@
-# PatchMaster Build Process
+# Patch-SecOps Solution Build Process
 
 ## Overview
-This document explains how to build PatchMaster from source, including all agent packages and the final product tarball.
+This document explains how to build Patch-SecOps Solution from source, including all agent packages and the final product tarball.
 
 **Last Updated**: April 12, 2026  
 **Version**: 2.0.0
+
+> **Verification note (2026-10-25)** — the core product-package path was
+> re-verified end-to-end in a clean `node:22` container: `npm ci` in
+> `frontend/`, then `bash packaging/build-package.sh` → exit 0, producing
+> `dist/patchmaster-2.0.17.tar.gz` (12 MB) + `.sha256` + `BUILD-MANIFEST.txt`.
+> Current product version is **2.0.17**; examples below still show `2.0.6`
+> from the April release cycle — pass `--version` (or the `VERSION` env var)
+> to build a specific version. That build is now a blocking CI job
+> (`package-build` in `.github/workflows/ci.yml`). The multi-platform agent
+> build scripts (`scripts/build-all-agents.sh` etc.) were NOT re-verified in
+> this cycle.
 
 ---
 
@@ -318,7 +329,7 @@ ls -lt patchmaster-*.tar.gz | tail -n +2 | awk '{print $9}' | xargs rm -f
 
 ### GitHub Actions Example
 ```yaml
-name: Build PatchMaster Release
+name: Build Patch-SecOps Solution Release
 
 on:
   push:
@@ -402,7 +413,7 @@ curl http://localhost:8000/static/agent-latest.txz -I
 
 ## Summary
 
-**To build a complete PatchMaster release**:
+**To build a complete Patch-SecOps Solution release**:
 
 ```bash
 # One command builds everything

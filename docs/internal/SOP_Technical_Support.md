@@ -111,7 +111,7 @@ UPDATE users SET password_hash = '$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6L
 
 **Pattern**: `Lock file is held by process ...` (Agent Log)
 - **Meaning**: `apt` or `dnf` is running in background (unattended-upgrades?).
-- **Fix**: Kill the process or wait. Disable auto-updates on the host if PatchMaster is managing it.
+- **Fix**: Kill the process or wait. Disable auto-updates on the host if Patch-SecOps Solution is managing it.
 
 ---
 
@@ -161,5 +161,5 @@ If L1/L2 cannot resolve:
    - Browser Console Logs (Network tab).
 2. **Create Ticket**:
    - **Severity**: Critical (System Down) vs Major (Feature Broken).
-   - **Environment**: OS Version, PatchMaster Version.
+   - **Environment**: OS Version, Patch-SecOps Solution Version.
 3. **Assign to Engineering (L3)**.

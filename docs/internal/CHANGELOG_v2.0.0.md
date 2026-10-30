@@ -1,4 +1,4 @@
-# PatchMaster v2.0.0 - Major Release Changelog
+# Patch-SecOps Solution v2.0.0 - Major Release Changelog
 
 ## 🚀 Key Infrastructure Upgrades
 This release transitions the entire platform to the latest stable enterprise-grade components, ensuring maximum performance, security, and observability.

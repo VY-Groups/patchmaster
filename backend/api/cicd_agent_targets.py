@@ -1,4 +1,4 @@
-"""CI/CD Agent Targets — run CD pipeline steps on specific hosts via the PatchMaster agent.
+"""CI/CD Agent Targets — run CD pipeline steps on specific hosts via the Patch-SecOps Solution agent.
 
 Each CICDAgentTarget links a pipeline+environment to a registered host.
 When a pipeline stage has runner_label matching a target label (or 'agent'),

@@ -1,0 +1,77 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "$comment": "Project-local AI tooling for Patchmaster. Vendors live in .tools/ (gitignored, recreated by .tools/setup-tools.ps1). Full guide: docs/AGENT_TOOLING.md",
+  "plugins": [
+    "./.tools/ponytail/.opencode/plugins",
+    "./.tools/ECC/.opencode"
+  ],
+  "skills": [
+    "./.tools/ponytail/skills",
+    "./.tools/understand-anything/understand-anything-plugin/skills",
+    "./.tools/ECC/skills"
+  ],
+  "instructions": [
+    "./.tools/ECC/AGENTS.md",
+    "./.tools/ECC/CONTRIBUTING.md",
+    "./.tools/ECC/.opencode/instructions/INSTRUCTIONS.md",
+    "./.tools/ECC/skills/tdd-workflow/SKILL.md",
+    "./.tools/ECC/skills/security-review/SKILL.md",
+    "./.tools/ECC/skills/coding-standards/SKILL.md",
+    "./.tools/ECC/skills/backend-patterns/SKILL.md",
+    "./.tools/ECC/skills/frontend-patterns/SKILL.md",
+    "./.tools/ECC/skills/e2e-testing/SKILL.md",
+    "./.tools/ECC/skills/verification-loop/SKILL.md",
+    "./.tools/ECC/skills/api-design/SKILL.md",
+    "./.tools/ECC/skills/strategic-compact/SKILL.md",
+    "./.tools/ECC/skills/eval-harness/SKILL.md"
+  ],
+  "references": {
+    "awesome-opencode": {
+      "path": "./.tools/awesome-opencode",
+      "description": "Curated list of OpenCode plugins, themes and agents. Consult this before building an integration from scratch."
+    },
+    "rea-docs": {
+      "path": "./.tools/rea/docs",
+      "description": "REA reverse-engineering CLI and MCP reference: installation, providers (Ghidra/Hopper/IDA), and one guide per analyzable format."
+    },
+    "understand-anything-docs": {
+      "path": "./.tools/understand-anything/docs",
+      "description": "Understand-Anything pipeline reference: agents, incremental updates, dashboard and graph format."
+    },
+    "ponytail-docs": {
+      "path": "./.tools/ponytail/docs",
+      "description": "Ponytail ruleset rationale, portability notes and benchmark methodology."
+    }
+  },
+  "mcp": {
+    "servers": {
+      "rea": {
+        "type": "local",
+        "command": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "C:\\Users\\ydube\\Documents\\patchmaster\\patchmaster\\.tools\\rea-runner\\node_modules\\rea-agents\\scripts\\rea.mjs",
+          "mcp"
+        ],
+        "environment": {
+          "REA_JADX_MCP_JAR": "C:\\Users\\ydube\\.local\\share\\rea\\android\\jadx-headless-mcp-0.7.1-all.jar",
+          "JAVA_HOME": "C:\\Users\\ydube\\Documents\\patchmaster\\patchmaster\\.tools\\jdk-21\\jdk-21.0.12.1+1"
+        },
+        "timeout": {
+          "startup": 60000
+        }
+      },
+      "ruflo": {
+        "type": "local",
+        "command": [
+          "node",
+          "C:\\\\Users\\\\ydube\\\\AppData\\\\Local\\\\npm-cache\\\\_npx\\\\2ed56890c96f58f7\\\\node_modules\\\\ruflo\\\\bin\\\\ruflo.js",
+          "mcp",
+          "start"
+        ],
+        "timeout": {
+          "startup": 60000
+        }
+      }
+    }
+  }
+}

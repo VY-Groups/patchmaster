@@ -1,8 +1,8 @@
-# PatchMaster And Vendor Master Diagrams
+# Patch-SecOps Solution And Vendor Master Diagrams
 
 ## Short Intro
 This diagram pack explains the current working model of both tools in a clear operator-friendly way:
-- what PatchMaster does
+- what Patch-SecOps Solution does
 - what the Vendor tool does
 - how agents, jobs, monitoring, testing, inventory, reports, and licenses flow
 - how the product tarball, vendor tarball, and internal recovery files should be used in production with offline PM2 license verification
@@ -11,11 +11,11 @@ For the separate license-signing-focused pack, also see:
 - `docs/internal/diagrams/license-workflow-diagrams.html`
 - `docs/internal/diagrams/license-workflow-diagrams.md`
 
-## 1. PatchMaster System Architecture
+## 1. Patch-SecOps Solution System Architecture
 
 ```mermaid
 flowchart TD
-    A["Admin / Operator / Auditor"] --> B["PatchMaster Web UI"]
+    A["Admin / Operator / Auditor"] --> B["Patch-SecOps Solution Web UI"]
     B --> C["FastAPI Backend"]
 
     C --> D["Dashboard + Search"]
@@ -48,11 +48,11 @@ flowchart TD
     V --> B
 ```
 
-## 2. PatchMaster Feature Workspace Map
+## 2. Patch-SecOps Solution Feature Workspace Map
 
 ```mermaid
 flowchart LR
-    A["PatchMaster"] --> B["Dashboard + Analytics"]
+    A["Patch-SecOps Solution"] --> B["Dashboard + Analytics"]
     A --> C["Hosts + Groups + Tags + Site"]
     A --> D["Patching + Software Distribution"]
     A --> E["Policies + Ring Rollout + Maintenance Windows"]
@@ -65,7 +65,7 @@ flowchart LR
     A --> L["License + Onboarding + Local / Mirror Repository"]
 ```
 
-## 3. PatchMaster Endpoint Onboarding And Lifecycle
+## 3. Patch-SecOps Solution Endpoint Onboarding And Lifecycle
 
 ```mermaid
 flowchart TD
@@ -109,7 +109,7 @@ flowchart TD
     B --> C["Prometheus target discovery"]
     C --> D["Prometheus collects metrics"]
     D --> E["Grafana dashboards"]
-    E --> F["Monitoring page in PatchMaster"]
+    E --> F["Monitoring page in Patch-SecOps Solution"]
 
     G["Operator"] --> H["Testing Center"]
     H --> I["Frontend smoke checks"]
@@ -184,11 +184,11 @@ flowchart TD
     A["Create customer"] --> B["Create purchase record"]
     B --> C["Choose plan / tier / features"]
     C --> D["Issue POC or testing license"]
-    D --> E["Customer runs PatchMaster POC or testing"]
+    D --> E["Customer runs Patch-SecOps Solution POC or testing"]
     E --> F["Customer shares verified hardware or MAC ID"]
     F --> G["Vendor records binding ID and final terms"]
     G --> H["Generate final bound PM2 license"]
-    H --> I["Customer activates final license in PatchMaster"]
+    H --> I["Customer activates final license in Patch-SecOps Solution"]
     I --> J["Support, renewal, reissue, and reporting continue"]
 ```
 
@@ -202,13 +202,13 @@ flowchart TD
     A --> E["Create private authority bundle"]
     A --> F["Export developer folder"]
 
-    B --> G["PatchMaster server install"]
+    B --> G["Patch-SecOps Solution server install"]
     C --> H["Vendor server install"]
     D --> I["Internal recovery copy only"]
     E --> J["Internal recovery copy only"]
     F --> K["Developer-only rebuild and test assets"]
 
-    G --> L["PatchMaster verifies and decrypts licenses"]
+    G --> L["Patch-SecOps Solution verifies and decrypts licenses"]
     H --> M["Vendor signs and encrypts licenses"]
     M --> L
 ```
@@ -219,7 +219,7 @@ flowchart TD
 flowchart LR
     A["Vendor Server"] --> B["Issue testing license or final PM2 license"]
     B --> C["Customer"]
-    C --> D["PatchMaster Server"]
+    C --> D["Patch-SecOps Solution Server"]
     D --> E["Activate, verify, and decrypt locally"]
 
     F["Vendor portal database"] -. "no runtime dependency" .-> D
@@ -233,7 +233,7 @@ flowchart TD
     A["Customer-safe product package"] --> B["Contains runtime verification and decryption bundle only"]
     C["Internal vendor tarball"] --> D["Contains private signing authority"]
     E["Internal dist/private files"] --> F["Recovery only"]
-    B --> G["PatchMaster can verify"]
+    B --> G["Patch-SecOps Solution can verify"]
     D --> H["Vendor can sign"]
     G --> I["Customer cannot mint new valid licenses"]
     H --> J["Signing remains limited to trusted vendor/operator side"]
@@ -246,11 +246,11 @@ flowchart TD
 2. Keep `dist/private/patchmaster-license-authority.env` private
 3. Do not share files from `dist/private/` with customers
 
-### PatchMaster Server Install
-1. Copy `dist/patchmaster-product-2.0.0.tar.gz` to the PatchMaster server
+### Patch-SecOps Solution Server Install
+1. Copy `dist/patchmaster-product-2.0.0.tar.gz` to the Patch-SecOps Solution server
 2. Extract the tarball
 3. Run `bash packaging/install-bare.sh --with-monitoring`
-4. Let PatchMaster install with the bundled runtime license bundle
+4. Let Patch-SecOps Solution install with the bundled runtime license bundle
 
 ### Vendor Server Install
 1. Copy `vendor/dist/patchmaster-vendor-2.0.0.tar.gz` to the Vendor server
@@ -262,11 +262,11 @@ flowchart TD
 1. Issue a testing license first if you need the customer hardware or MAC ID for final binding
 2. Record the verified hardware or MAC ID in the Vendor portal
 3. Generate the final `PM2-...` license from the Vendor tool
-4. Paste that final `PM2-...` key into PatchMaster
+4. Paste that final `PM2-...` key into Patch-SecOps Solution
 
 ### Important Rules
-- PatchMaster and Vendor must share the same license authority set
+- Patch-SecOps Solution and Vendor must share the same license authority set
 - customers should receive only customer-safe product artifacts
 - the private authority must stay only with your trusted operator/vendor side
-- Vendor and PatchMaster are standalone after install, but trust must come from aligned license authority material
-- PatchMaster license verification is local; Vendor public internet exposure is not required
+- Vendor and Patch-SecOps Solution are standalone after install, but trust must come from aligned license authority material
+- Patch-SecOps Solution license verification is local; Vendor public internet exposure is not required

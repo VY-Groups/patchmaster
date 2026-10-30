@@ -172,9 +172,9 @@ export default function JobsPage({ jobs, setJobs, API, apiFetch, useInterval, ha
         {filtered.length === 0 ? (
           // UX-004 FIX: Distinguish between "no data" and "no matches"
           safeJobs.length === 0 ? (
-            <div style={{ padding: '40px 20px', textAlign: 'center', color: '#64748b' }}>
+            <div style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--text-secondary)' }}>
               <div style={{ fontSize: 48, marginBottom: 16 }}>📋</div>
-              <h3 style={{ marginBottom: 8, color: '#0f172a' }}>No jobs yet</h3>
+              <h3 style={{ marginBottom: 8, color: 'var(--text-primary)' }}>No jobs yet</h3>
               <p>Patch jobs will appear here once you start patching hosts.</p>
               <p style={{ fontSize: 13, marginTop: 12 }}>
                 Go to <strong>Hosts</strong> → Select a host → Click <strong>Patch</strong> to create your first job.
@@ -189,8 +189,8 @@ export default function JobsPage({ jobs, setJobs, API, apiFetch, useInterval, ha
               <thead><tr><th>ID</th><th>Host</th><th>Action</th><th>Status</th><th>By</th><th>Created</th><th>Actions</th></tr></thead>
               <tbody>{filtered.map((job) => (
                 <tr key={job.id} style={{ cursor: 'pointer' }} onClick={() => openDetail(job)}>
-                  <td style={{ color: '#64748b', fontSize: 12 }}>#{job.id}</td>
-                  <td><strong>{job.host_name || job.host_id || '--'}</strong>{job.host_ip && <div style={{ fontSize: 11, color: '#64748b' }}>{job.host_ip}</div>}</td>
+                  <td style={{ color: 'var(--text-secondary)', fontSize: 12 }}>#{job.id}</td>
+                  <td><strong>{job.host_name || job.host_id || '--'}</strong>{job.host_ip && <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{job.host_ip}</div>}</td>
                   <td>{job.action || job.name}</td>
                   <td>
                     <span className={`badge badge-${job.status === 'success' ? 'success' : job.status === 'running' ? 'warning' : job.status === 'failed' ? 'danger' : job.status === 'rolled_back' ? 'info' : 'info'}`}>
@@ -227,7 +227,7 @@ export default function JobsPage({ jobs, setJobs, API, apiFetch, useInterval, ha
             </table>
             {/* Pagination controls */}
             {pages > 1 && (
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 12, padding: '16px 0', borderTop: '1px solid #e2e8f0' }}>
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 12, padding: '16px 0', borderTop: '1px solid var(--border-color)' }}>
                 <button 
                   className="btn btn-sm" 
                   onClick={() => setPage(p => Math.max(1, p - 1))}
@@ -235,7 +235,7 @@ export default function JobsPage({ jobs, setJobs, API, apiFetch, useInterval, ha
                 >
                   Previous
                 </button>
-                <span style={{ fontSize: 13, color: '#64748b' }}>
+                <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
                   Page {page} of {pages} ({total} total jobs)
                 </span>
                 <button 
@@ -272,7 +272,7 @@ export default function JobsPage({ jobs, setJobs, API, apiFetch, useInterval, ha
                 {jobDetail.output && (
                   <div>
                     <div style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 6 }}>Output Log {jobDetail.status === 'running' && <span style={{ color: '#f59e0b' }}>Live</span>}</div>
-                    <div style={{ background: '#0f172a', color: '#a5d6a7', padding: 12, borderRadius: 8, fontFamily: 'monospace', fontSize: 12, whiteSpace: 'pre-wrap', maxHeight: 300, overflowY: 'auto', lineHeight: 1.5 }}>
+                    <div style={{ background: 'var(--text-primary)', color: '#a5d6a7', padding: 12, borderRadius: 8, fontFamily: 'monospace', fontSize: 12, whiteSpace: 'pre-wrap', maxHeight: 300, overflowY: 'auto', lineHeight: 1.5 }}>
                       {jobDetail.output}
                     </div>
                   </div>

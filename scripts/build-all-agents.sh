@@ -1,6 +1,6 @@
 #!/bin/bash
 ###############################################################################
-# PatchMaster - Build All Agent Packages
+# Patch-SecOps Solution - Build All Agent Packages
 # This script builds all platform agent packages with bundled dependencies
 ###############################################################################
 
@@ -22,7 +22,7 @@ success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
 warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
-log "Building all PatchMaster agent packages v${VERSION}"
+log "Building all Patch-SecOps Solution agent packages v${VERSION}"
 log "Project root: $PROJECT_ROOT"
 
 # Step 1: Ensure vendor/wheels directory exists
@@ -131,7 +131,7 @@ success "Agent package build complete!"
 echo ""
 log "Next steps:"
 echo "  1. Test agents on target platforms"
-echo "  2. Build PatchMaster product package:"
+echo "  2. Build Patch-SecOps Solution product package:"
 echo "     bash packaging/build-package.sh --version $VERSION"
 echo ""
 

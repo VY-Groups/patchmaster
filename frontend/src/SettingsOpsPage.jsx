@@ -34,7 +34,7 @@ export default function SettingsOpsPage({ health, hosts, jobs, API, apiFetch, Ap
       key: 'docker',
       title: 'Docker operations',
       icon: 'layers',
-      description: 'Common lifecycle commands for containerized PatchMaster deployments.',
+      description: 'Common lifecycle commands for containerized Patch-SecOps Solution deployments.',
       commands: 'docker compose build --no-cache\ndocker compose up -d\ndocker compose logs -f backend\ndocker compose down',
     },
   ]), [controllerUrl, frontendUrl]);
@@ -96,7 +96,7 @@ export default function SettingsOpsPage({ health, hosts, jobs, API, apiFetch, Ap
   return (
     <div className="ops-shell">
       <div className="ops-hero">
-        <div className="ops-hero-main" style={{ borderColor: backendOnline ? '#86efac' : '#fca5a5', background: backendOnline ? 'linear-gradient(145deg, #ecfdf3, #f8fffb)' : 'linear-gradient(145deg, #fef2f2, #fff7f7)' }}>
+        <div className="ops-hero-main" style={{ borderColor: backendOnline ? '#86efac' : '#fca5a5', background: backendOnline ? 'linear-gradient(145deg, #ecfdf3, #f8fffb)' : 'linear-gradient(145deg, #fef2f2, var(--card-bg)7f7)' }}>
           <div className="ops-kicker">Platform settings</div>
           <div className="ops-hero-row">
             <div className="ops-hero-emphasis">
@@ -107,7 +107,7 @@ export default function SettingsOpsPage({ health, hosts, jobs, API, apiFetch, Ap
               <span className="ops-emphasis-meta">Version {version} - master {masterIp}</span>
             </div>
             <div className="ops-hero-copy">
-              <h3>Keep the PatchMaster control plane clean, secure, and easy to operate.</h3>
+              <h3>Keep the Patch-SecOps Solution control plane clean, secure, and easy to operate.</h3>
               <p>
                 Settings is now structured like an admin workspace: environment visibility up top, credential maintenance in the middle, and reusable operational commands alongside the endpoints your team relies on every day.
               </p>
@@ -151,7 +151,7 @@ export default function SettingsOpsPage({ health, hosts, jobs, API, apiFetch, Ap
         {[
           { label: 'Backend status', value: backendOnline ? 'Online' : 'Offline', sub: 'service reachability from the UI', icon: 'server', color: backendOnline ? '#16a34a' : '#dc2626', bg: backendOnline ? 'rgba(34,197,94,0.12)' : 'rgba(239,68,68,0.12)' },
           { label: 'Master host', value: masterIp, sub: 'agent-facing control plane address', icon: 'server', color: '#2563eb', bg: 'rgba(37,99,235,0.12)' },
-          { label: 'Managed hosts', value: hosts.length, sub: 'fleet size reflected in PatchMaster', icon: 'users', color: '#06b6d4', bg: 'rgba(139,92,246,0.12)' },
+          { label: 'Managed hosts', value: hosts.length, sub: 'fleet size reflected in Patch-SecOps Solution', icon: 'users', color: '#06b6d4', bg: 'rgba(139,92,246,0.12)' },
           { label: 'Tracked jobs', value: jobs.length, sub: 'execution history and active queue', icon: 'timeline', color: '#d97706', bg: 'rgba(245,158,11,0.14)' },
         ].map(card => (
           <div key={card.label} className="ops-summary-card">
@@ -191,7 +191,7 @@ export default function SettingsOpsPage({ health, hosts, jobs, API, apiFetch, Ap
               style={{
                 marginTop: 16,
                 borderColor: pwMsg.toLowerCase().includes('success') ? '#86efac' : '#fecaca',
-                background: pwMsg.toLowerCase().includes('success') ? 'linear-gradient(145deg, #ecfdf3, #f8fffb)' : 'linear-gradient(145deg, #fff7ed, #fffdf8)',
+                background: pwMsg.toLowerCase().includes('success') ? 'linear-gradient(145deg, #ecfdf3, #f8fffb)' : 'linear-gradient(145deg, var(--card-bg)7ed, var(--card-bg)df8)',
               }}
             >
               <div style={{ color: pwMsg.toLowerCase().includes('success') ? '#166534' : '#b45309', fontWeight: 700 }}>{pwMsg}</div>

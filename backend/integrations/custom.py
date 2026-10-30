@@ -1,5 +1,5 @@
 """
-Custom Integration Framework for PatchMaster.
+Custom Integration Framework for Patch-SecOps Solution.
 
 Provides a base class for creating custom integrations.
 Supports registration, configuration, and event dispatching.

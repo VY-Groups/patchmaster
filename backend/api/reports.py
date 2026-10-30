@@ -214,7 +214,8 @@ async def patch_summary_csv(
             detail="Reports require a license with the 'reports' feature",
         )
 
-    hosts = (await db.execute(select(Host))).scalars().all()
+    from sqlalchemy.orm import selectinload
+    hosts = (await db.execute(select(Host).options(selectinload(Host.groups)))).scalars().all()
     rows = []
     for h in hosts:
         groups = (
@@ -256,7 +257,7 @@ async def patch_summary_csv(
 class PDFReport(FPDF):
     def header(self):
         self.set_font("Arial", "B", 15)
-        self.cell(0, 10, "PatchMaster Enterprise Report", 0, 1, "C")
+        self.cell(0, 10, "Patch-SecOps Solution Enterprise Report", 0, 1, "C")
         self.set_font("Arial", "I", 10)
         self.cell(
             0, 10, f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}", 0, 1, "C"
@@ -956,7 +957,8 @@ async def generate_custom_report(
     await _validate_token(db, jwt_token)
 
     # Query hosts with filters
-    query = select(Host).order_by(Host.hostname)
+    from sqlalchemy.orm import selectinload
+    query = select(Host).options(selectinload(Host.groups)).order_by(Host.hostname)
 
     # Apply filters
     if "site" in config.filters:

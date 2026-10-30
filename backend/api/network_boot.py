@@ -501,14 +501,14 @@ def _default_answer_template(
         session_token,
         "enrollment_succeeded",
         "answer_template",
-        "PatchMaster agent enrollment completed",
+        "Patch-SecOps Solution agent enrollment completed",
     )
     enrollment_failed_cmd = _event_report_command(
         events_url,
         session_token,
         "enrollment_failed",
         "answer_template",
-        "PatchMaster agent enrollment failed",
+        "Patch-SecOps Solution agent enrollment failed",
     )
     linux_agent_cmd = (
         f"curl -fsSL {_shell_single_quote(controller_url + '/static/install-agent.sh')} "
@@ -605,7 +605,7 @@ autopart
       </ImageInstall>
       <UserData>
         <AcceptEula>true</AcceptEula>
-        <FullName>PatchMaster</FullName>
+        <FullName>Patch-SecOps Solution</FullName>
         <Organization>VYGROUP</Organization>
       </UserData>
     </component>
@@ -620,7 +620,7 @@ autopart
       <FirstLogonCommands>
         <SynchronousCommand wcm:action="add" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State">
           <Order>1</Order>
-          <Description>Enroll PatchMaster agent</Description>
+          <Description>Enroll Patch-SecOps Solution agent</Description>
           <CommandLine>{windows_agent_cmd}</CommandLine>
         </SynchronousCommand>
       </FirstLogonCommands>
@@ -638,7 +638,7 @@ autopart
         "event_report_url": events_url,
         "session_token": session_token,
         "site_scope": site_scope,
-        "note": "Boot into a live restore environment, restore the stored template, then install the PatchMaster agent on first boot.",
+        "note": "Boot into a live restore environment, restore the stored template, then install the Patch-SecOps Solution agent on first boot.",
     },
         indent=2,
     )
@@ -660,7 +660,7 @@ def _render_ipxe_script(
     firmware = _normalize_firmware_mode(assignment_firmware or profile.firmware_mode)
     lines = [
         "#!ipxe",
-        f"# PatchMaster network boot profile: {profile.name}",
+        f"# Patch-SecOps Solution network boot profile: {profile.name}",
         f"# Firmware mode: {firmware}",
     ]
     if assignment:
@@ -717,10 +717,10 @@ def _render_ipxe_script(
 def _render_network_menu(network: NetworkBootNetwork, profiles: list[NetworkBootProfile]) -> str:
     lines = [
         "#!ipxe",
-        f"# PatchMaster network boot menu for {network.name}",
+        f"# Patch-SecOps Solution network boot menu for {network.name}",
         "dhcp",
         ":menu",
-        "menu PatchMaster bare-metal deployment",
+        "menu Patch-SecOps Solution bare-metal deployment",
     ]
     active_profiles = [profile for profile in profiles if bool(profile.is_enabled)]
     for profile in active_profiles:
@@ -737,7 +737,7 @@ def _render_dnsmasq_config(
     assignments: list[NetworkBootAssignment],
 ) -> str:
     lines = [
-        "# PatchMaster generated dnsmasq PXE configuration",
+        "# Patch-SecOps Solution generated dnsmasq PXE configuration",
         "port=0",
         "log-dhcp",
         "enable-tftp",
@@ -842,7 +842,7 @@ def _render_nginx_config(networks: list[NetworkBootNetwork]) -> str:
         server_names = ["patchmaster-boot.local"]
     return "\n".join(
         [
-            "# PatchMaster generated nginx HTTP-boot configuration",
+            "# Patch-SecOps Solution generated nginx HTTP-boot configuration",
             "server {",
             "    listen 80;",
             f"    server_name {' '.join(server_names)};",
@@ -1329,7 +1329,7 @@ def _build_bundle_buffer(
             "README.txt",
             "\n".join(
                 [
-                    f"PatchMaster PXE deployment bundle{scope_label}",
+                    f"Patch-SecOps Solution PXE deployment bundle{scope_label}",
                     "",
                     "1. Copy this bundle to the designated boot relay host.",
                     "2. Run scripts/install-boot-host.sh as root on that host.",
@@ -1397,7 +1397,6 @@ async def _run_agent_command_on_host(
 
 async def _execute_relay_action(run_id: int, relay_id: int, action: str) -> dict[str, Any]:
     async with async_session() as db:
-        await _ensure_network_boot_schema(db)
         relay_query = (
             select(BootRelay)
             .options(selectinload(BootRelay.host), selectinload(BootRelay.networks))
@@ -1603,7 +1602,6 @@ async def workflow_cards(user: User = Depends(get_current_user)):
 
 @router.get("/relays")
 async def list_relays(db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user)):
-    await _ensure_network_boot_schema(db)
     query = (
         select(BootRelay)
         .options(selectinload(BootRelay.host), selectinload(BootRelay.networks))
@@ -1619,7 +1617,6 @@ async def create_relay(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
-    await _ensure_network_boot_schema(db)
     host = await db.get(Host, body.host_id)
     if not host:
         raise HTTPException(status_code=404, detail="Host not found")
@@ -1702,7 +1699,6 @@ async def install_relay(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
-    await _ensure_network_boot_schema(db)
     return await _queue_relay_action(relay_id, "install", db, user)
 
 
@@ -1712,7 +1708,6 @@ async def sync_relay(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
-    await _ensure_network_boot_schema(db)
     return await _queue_relay_action(relay_id, "sync", db, user)
 
 
@@ -1722,7 +1717,6 @@ async def validate_relay(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
-    await _ensure_network_boot_schema(db)
     return await _queue_relay_action(relay_id, "validate", db, user)
 
 
@@ -1732,7 +1726,6 @@ async def relay_runs(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    await _ensure_network_boot_schema(db)
     query = select(BootRelayRun).where(BootRelayRun.relay_id == relay_id).order_by(BootRelayRun.created_at.desc())
     rows = (await db.execute(query)).scalars().all()
     return {"items": [_relay_run_public(row) for row in rows]}
@@ -1745,7 +1738,6 @@ async def list_boot_sessions(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    await _ensure_network_boot_schema(db)
     query = (
         select(BootSession)
         .options(
@@ -1769,7 +1761,6 @@ async def ingest_boot_event(
     body: BootSessionEventIn,
     db: AsyncSession = Depends(get_db),
 ):
-    await _ensure_network_boot_schema(db)
     session = await _load_boot_session_by_token(db, body.session_token.strip())
     if not session:
         raise HTTPException(status_code=404, detail="Boot session not found")
@@ -1788,7 +1779,6 @@ async def ingest_boot_event(
 
 @router.get("/networks")
 async def list_networks(db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user)):
-    await _ensure_network_boot_schema(db)
     rows = (
         await db.execute(
             select(NetworkBootNetwork)
@@ -1805,7 +1795,6 @@ async def create_network(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
-    await _ensure_network_boot_schema(db)
     name = body.name.strip()
     if not name:
         raise HTTPException(status_code=400, detail="Boot network name is required")
@@ -1847,7 +1836,6 @@ async def create_network(
 
 @router.get("/profiles")
 async def list_profiles(db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user)):
-    await _ensure_network_boot_schema(db)
     query = (
         select(NetworkBootProfile)
         .options(
@@ -1867,7 +1855,6 @@ async def create_profile(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
-    await _ensure_network_boot_schema(db)
     name = body.name.strip()
     if not name:
         raise HTTPException(status_code=400, detail="Boot profile name is required")
@@ -1925,7 +1912,6 @@ async def create_profile(
 
 @router.get("/assignments")
 async def list_assignments(db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user)):
-    await _ensure_network_boot_schema(db)
     query = (
         select(NetworkBootAssignment)
         .options(
@@ -1946,7 +1932,6 @@ async def create_assignment(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
-    await _ensure_network_boot_schema(db)
     network = await db.get(NetworkBootNetwork, body.network_id)
     if not network:
         raise HTTPException(status_code=404, detail="Boot network not found")
@@ -2004,7 +1989,6 @@ async def artifact_preview(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    await _ensure_network_boot_schema(db)
     query = (
         select(NetworkBootProfile)
         .options(
@@ -2027,7 +2011,7 @@ async def artifact_preview(
         "post_install_script": profile.post_install_script or "",
         "notes": [
             "Published boot endpoints are live and can be consumed by iPXE or HTTP boot.",
-            "The generated answer template includes first-boot PatchMaster enrollment defaults.",
+            "The generated answer template includes first-boot Patch-SecOps Solution enrollment defaults.",
             "Download the deployment bundle to apply dnsmasq and TFTP settings on your boot infrastructure host.",
         ],
     }
@@ -2038,7 +2022,6 @@ async def service_preview(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    await _ensure_network_boot_schema(db)
     networks = (
         await db.execute(
             select(NetworkBootNetwork)
@@ -2111,7 +2094,6 @@ async def deployment_bundle(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
-    await _ensure_network_boot_schema(db)
     networks = (
         await db.execute(
             select(NetworkBootNetwork)
@@ -2158,7 +2140,6 @@ async def provisioning_catalog(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    await _ensure_network_boot_schema(db)
     templates = (
         await db.execute(
             select(ProvisioningTemplate)
@@ -2183,7 +2164,6 @@ async def provisioning_catalog(
 
 @public_router.get("/relays/{relay_id}/bundle.tar.gz")
 async def public_relay_bundle(relay_id: int, db: AsyncSession = Depends(get_db)):
-    await _ensure_network_boot_schema(db)
     relay_query = (
         select(BootRelay)
         .options(selectinload(BootRelay.host), selectinload(BootRelay.networks))
@@ -2241,7 +2221,6 @@ async def public_relay_bundle(relay_id: int, db: AsyncSession = Depends(get_db))
 
 @public_router.get("/networks/{network_id}/menu.ipxe", response_class=PlainTextResponse)
 async def published_network_menu(network_id: int, db: AsyncSession = Depends(get_db)):
-    await _ensure_network_boot_schema(db)
     network = await db.get(NetworkBootNetwork, network_id)
     if not network or not network.is_enabled:
         raise HTTPException(status_code=404, detail="Boot network not found")
@@ -2251,7 +2230,6 @@ async def published_network_menu(network_id: int, db: AsyncSession = Depends(get
 
 @public_router.get("/profiles/{profile_id}/boot.ipxe", response_class=PlainTextResponse)
 async def published_profile_ipxe(profile_id: int, db: AsyncSession = Depends(get_db)):
-    await _ensure_network_boot_schema(db)
     query = (
         select(NetworkBootProfile)
         .options(
@@ -2269,7 +2247,6 @@ async def published_profile_ipxe(profile_id: int, db: AsyncSession = Depends(get
 
 @public_router.get("/profiles/{profile_id}/answer", response_class=PlainTextResponse)
 async def published_profile_answer(profile_id: int, db: AsyncSession = Depends(get_db)):
-    await _ensure_network_boot_schema(db)
     query = (
         select(NetworkBootProfile)
         .options(
@@ -2287,7 +2264,6 @@ async def published_profile_answer(profile_id: int, db: AsyncSession = Depends(g
 
 @public_router.get("/assignments/{assignment_id}/boot.ipxe", response_class=PlainTextResponse)
 async def published_assignment_ipxe(assignment_id: int, db: AsyncSession = Depends(get_db)):
-    await _ensure_network_boot_schema(db)
     query = (
         select(NetworkBootAssignment)
         .options(
@@ -2310,7 +2286,6 @@ async def published_assignment_ipxe(assignment_id: int, db: AsyncSession = Depen
 
 @public_router.get("/assignments/{assignment_id}/answer", response_class=PlainTextResponse)
 async def published_assignment_answer(assignment_id: int, session: str | None = None, db: AsyncSession = Depends(get_db)):
-    await _ensure_network_boot_schema(db)
     query = (
         select(NetworkBootAssignment)
         .options(

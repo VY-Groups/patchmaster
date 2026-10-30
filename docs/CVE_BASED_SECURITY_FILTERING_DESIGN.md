@@ -15,7 +15,7 @@ Currently, security-only updates work on platforms with native support (Debian, 
 - ❌ Alpine: No security classification in apk
 - ❌ FreeBSD: No security classification in pkg
 
-**Goal**: Enable security-only updates on ALL platforms using PatchMaster's CVE database.
+**Goal**: Enable security-only updates on ALL platforms using Patch-SecOps Solution's CVE database.
 
 ---
 
@@ -495,7 +495,7 @@ def test_filter_security_packages_arch():
 
 ## Conclusion
 
-This design enables **universal security-only updates** across all platforms by leveraging PatchMaster's CVE database. Platforms without native security classification (Arch, Alpine, FreeBSD) will query the backend to filter packages based on actual vulnerability data.
+This design enables **universal security-only updates** across all platforms by leveraging Patch-SecOps Solution's CVE database. Platforms without native security classification (Arch, Alpine, FreeBSD) will query the backend to filter packages based on actual vulnerability data.
 
 **Key Advantages**:
 - ✅ Works on ALL platforms

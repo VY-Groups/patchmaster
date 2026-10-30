@@ -1,4 +1,4 @@
-"""External integrations for PatchMaster.
+"""External integrations for Patch-SecOps Solution.
 
 Provides integration modules for:
 - Jira: Create and manage Jira tickets

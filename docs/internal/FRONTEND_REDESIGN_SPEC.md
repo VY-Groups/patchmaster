@@ -1,7 +1,7 @@
-# PatchMaster Frontend Redesign Specification
+# Patch-SecOps Solution Frontend Redesign Specification
 
 ## Purpose
-This document is the source of truth for the next full PatchMaster frontend redesign.
+This document is the source of truth for the next full Patch-SecOps Solution frontend redesign.
 
 It is written so another AI or frontend engineer can read it once and execute the redesign without guessing the product direction.
 
@@ -96,12 +96,12 @@ It does change:
 
 ## 1. Final Design Goal
 
-PatchMaster must become:
+Patch-SecOps Solution must become:
 - a professional enterprise endpoint operations platform
 - a serious patch, provisioning, and policy control plane
 - a UI suitable for infrastructure, platform, security, and operations teams
 
-PatchMaster must not feel like:
+Patch-SecOps Solution must not feel like:
 - a generic admin template
 - a startup CRUD panel
 - a sparse dashboard mockup
@@ -134,7 +134,7 @@ That means the redesign must preserve:
 
 The correct implementation question is:
 
-- "How do we make the real PatchMaster page look like its Stitch source?"
+- "How do we make the real Patch-SecOps Solution page look like its Stitch source?"
 
 not:
 
@@ -294,7 +294,7 @@ The engineer or AI doing the redesign must:
 - open the matching `screen.png`
 - inspect the matching `code.html`
 - reproduce the same layout in React
-- then bind the real PatchMaster logic into that layout
+- then bind the real Patch-SecOps Solution logic into that layout
 
 Only after that may they adjust for:
 
@@ -1036,7 +1036,7 @@ For every page in each work package:
 1. inspect the mapped Stitch `screen.png`
 2. inspect the mapped Stitch `code.html`
 3. recreate that layout in React/Tailwind
-4. wire the real PatchMaster data into it
+4. wire the real Patch-SecOps Solution data into it
 5. verify the resulting page still matches the Stitch reference visually
 
 ### Work package 1: Shell and design system

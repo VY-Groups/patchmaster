@@ -1,4 +1,4 @@
-# PatchMaster Program Milestones
+# Patch-SecOps Solution Program Milestones
 
 ## Milestone Status
 

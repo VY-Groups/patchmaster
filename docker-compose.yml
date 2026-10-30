@@ -4,7 +4,7 @@ services:
     restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-patchmaster}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-patchmaster}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
       POSTGRES_DB: ${POSTGRES_DB:-patchmaster}
     volumes:
       - pgdata:/var/lib/postgresql/data
@@ -22,16 +22,36 @@ services:
     ports:
       - "${BACKEND_PORT:-8000}:8000"
     environment:
-      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-patchmaster}:${POSTGRES_PASSWORD:-patchmaster}@db:5432/${POSTGRES_DB:-patchmaster}
-      - JWT_SECRET=${JWT_SECRET:-change-me-to-a-secure-random-string}
-      - PM_SECRET_KEY=${PM_SECRET_KEY:-ZGV2LW9ubHktZmVybmV0LWtleS1kb25vdC11c2UtaW4tcHJvZA==}
-      - LICENSE_SIGN_KEY=${LICENSE_SIGN_KEY:-dev-only-license-sign-key}
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-patchmaster}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@db:5432/${POSTGRES_DB:-patchmaster}
+      - JWT_SECRET=${JWT_SECRET:?Set JWT_SECRET in .env}
+      - PM_SECRET_KEY=${PM_SECRET_KEY:?Set PM_SECRET_KEY in .env}
+      - LICENSE_SIGN_KEY=${LICENSE_SIGN_KEY:?Set LICENSE_SIGN_KEY in .env}
+      - LICENSE_VERIFY_PUBLIC_KEY=${LICENSE_VERIFY_PUBLIC_KEY:-}
+      - LICENSE_DECRYPT_PRIVATE_KEY=${LICENSE_DECRYPT_PRIVATE_KEY:-}
+      - LICENSE_ENCRYPT_PUBLIC_KEY=${LICENSE_ENCRYPT_PUBLIC_KEY:-}
+      - PM_ADMIN_USER=${PM_ADMIN_USER:-admin}
+      - PM_ADMIN_PASSWORD=${PM_ADMIN_PASSWORD:-}
+      - PM_ADMIN_EMAIL=${PM_ADMIN_EMAIL:-}
+      - PM_SMOKE_USER=${PM_SMOKE_USER:-qa-smoke}
+      - PM_SMOKE_PASSWORD=${PM_SMOKE_PASSWORD:-}
+      # Setup-time SMTP: creates the email channel on first startup (OTP reset).
+      - PM_SMTP_HOST=${PM_SMTP_HOST:-}
+      - PM_SMTP_PORT=${PM_SMTP_PORT:-587}
+      - PM_SMTP_USERNAME=${PM_SMTP_USERNAME:-}
+      - PM_SMTP_PASSWORD=${PM_SMTP_PASSWORD:-}
+      - PM_SMTP_TO=${PM_SMTP_TO:-}
+      - PM_SMTP_FROM=${PM_SMTP_FROM:-}
+      - PM_SMTP_USE_TLS=${PM_SMTP_USE_TLS:-1}
       - LOG_LEVEL=debug
       - PLAYWRIGHT_REAL_BASE_URL=${PLAYWRIGHT_REAL_BASE_URL:-http://127.0.0.1:${FRONTEND_PORT:-3000}}
       - PLAYWRIGHT_REAL_USER=${PLAYWRIGHT_REAL_USER:-admin}
       - PLAYWRIGHT_REAL_PASSWORD=${PLAYWRIGHT_REAL_PASSWORD:-}
     volumes:
       - ./backend:/app
+      # /opt/patchmaster holds license.key (and agent-update/monitoring state).
+      # Without a volume it lives in the container layer and every recreate
+      # silently reverts the stack to "no license key found" (403 on tiered APIs).
+      - backend_data:/opt/patchmaster
     depends_on:
       db:
         condition: service_healthy
@@ -45,9 +65,10 @@ services:
     ports:
       - "${FRONTEND_PORT:-3000}:3000"
     environment:
-      # Leave VITE_API_URL empty for dev — App.js auto-swaps port 3000→8000 on same host.
-      # Set to e.g. http://192.168.1.10:8000 if backend is on a different host.
+      # appRuntime.js treats port 3000 as same-origin (nginx in prod); in dev the
+      # Vite proxy mirrors nginx.conf and forwards /api + /download to the backend.
       - VITE_API_URL=${VITE_API_URL:-}
+      - API_PROXY_TARGET=http://backend:8000
     volumes:
       - ./frontend:/app
       - /app/node_modules
@@ -80,7 +101,7 @@ services:
       - "127.0.0.1:3001:3000"
     environment:
       - GF_SECURITY_ADMIN_USER=${GF_ADMIN_USER:-admin}
-      - GF_SECURITY_ADMIN_PASSWORD=${GF_ADMIN_PASSWORD:-patchmaster}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_ADMIN_PASSWORD:?Set GF_ADMIN_PASSWORD in .env}
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/var/lib/grafana/dashboards/patchmaster-overview.json
     volumes:
@@ -96,6 +117,7 @@ volumes:
   pgdata:
   prometheus_data:
   grafana_data:
+  backend_data:
 
 networks:
   internal:

@@ -1,6 +1,6 @@
-# PatchMaster Installation & Operations Guide
+# Patch-SecOps Solution Installation & Operations Guide
 
-Audience: end users deploying PatchMaster, installing/uninstalling agents, and enabling monitoring.
+Audience: end users deploying Patch-SecOps Solution, installing/uninstalling agents, and enabling monitoring.
 
 ## 1) Master Install
 
@@ -44,18 +44,18 @@ sudo systemctl status patchmaster-backend    # if bare-metal
 
 ## 3A) PoC Prerequisites (Networking)
 
-PatchMaster has two data paths:
+Patch-SecOps Solution has two data paths:
 
-- Host inventory/online status comes from the agent registering + heartbeating to the PatchMaster backend.
+- Host inventory/online status comes from the agent registering + heartbeating to the Patch-SecOps Solution backend.
 - Grafana Host Details comes from Prometheus scraping the agent metrics endpoint.
 
 Minimum required network flows:
 
-- Agent host → PatchMaster server: TCP 8000 (register/heartbeat + API)
-- PatchMaster server → Agent host: TCP 9100 (Prometheus scrape for Grafana Host Details)
-- PatchMaster server → Agent host: TCP 8080 (agent API for patching/commands)
+- Agent host → Patch-SecOps Solution server: TCP 8000 (register/heartbeat + API)
+- Patch-SecOps Solution server → Agent host: TCP 9100 (Prometheus scrape for Grafana Host Details)
+- Patch-SecOps Solution server → Agent host: TCP 8080 (agent API for patching/commands)
 
-If the second path (server → host 9100) is blocked, the host can still show ONLINE in PatchMaster but Grafana Host Details will show No data.
+If the second path (server → host 9100) is blocked, the host can still show ONLINE in Patch-SecOps Solution but Grafana Host Details will show No data.
 
 Linux firewall examples:
 
@@ -71,8 +71,8 @@ sudo firewall-cmd --reload
 Windows firewall example (run as Administrator):
 
 ```powershell
-New-NetFirewallRule -DisplayName "PatchMaster Agent Metrics" -Direction Inbound -Protocol TCP -LocalPort 9100 -Action Allow
-New-NetFirewallRule -DisplayName "PatchMaster Agent API" -Direction Inbound -Protocol TCP -LocalPort 8080 -Action Allow
+New-NetFirewallRule -DisplayName "Patch-SecOps Solution Agent Metrics" -Direction Inbound -Protocol TCP -LocalPort 9100 -Action Allow
+New-NetFirewallRule -DisplayName "Patch-SecOps Solution Agent API" -Direction Inbound -Protocol TCP -LocalPort 8080 -Action Allow
 ```
 
 **Windows (Admin CMD/PowerShell)**
@@ -82,7 +82,7 @@ curl.exe -L -o PatchMaster-Agent-Installer.exe http://<master-ip>:3000/download/
 PatchMaster-Agent-Installer.exe --master-url http://<master-ip>:8000 --no-pause
 ```
 
-Air-gapped Windows note: the PatchMaster-Agent-Installer.exe is self-contained and does not require Python or internet access on the agent host. Ensure TCP 9100 (metrics) and TCP 8080 (agent API) are allowed inbound from the PatchMaster server if those features are used.
+Air-gapped Windows note: the PatchMaster-Agent-Installer.exe is self-contained and does not require Python or internet access on the agent host. Ensure TCP 9100 (metrics) and TCP 8080 (agent API) are allowed inbound from the Patch-SecOps Solution server if those features are used.
 
 **Debian/Ubuntu**
 
@@ -105,8 +105,8 @@ sudo systemctl enable --now patch-agent patch-agent-heartbeat
 ```
 
 ### Air‑Gapped Checklist (Linux)
-- Ensure outbound from agent to PatchMaster: TCP 8000.
-- Ensure inbound to agent from PatchMaster: TCP 9100 (metrics) and TCP 8080 (agent API, if used).
+- Ensure outbound from agent to Patch-SecOps Solution: TCP 8000.
+- Ensure inbound to agent from Patch-SecOps Solution: TCP 9100 (metrics) and TCP 8080 (agent API, if used).
 - Verify services:
   ```bash
   sudo systemctl status patch-agent patch-agent-heartbeat
@@ -116,7 +116,7 @@ sudo systemctl enable --now patch-agent patch-agent-heartbeat
   curl -sS http://127.0.0.1:9100/metrics | head
   curl -sS http://127.0.0.1:8080/health
   ```
-- Verify server scrape status (run on PatchMaster server):
+- Verify server scrape status (run on Patch-SecOps Solution server):
   ```bash
   curl -g 'http://127.0.0.1:9090/api/monitoring/embed/prometheus/api/v1/query?query=up{job="patchmaster-agents"}'
   ```
@@ -137,7 +137,7 @@ curl http://localhost:9100/metrics
 
 - Windows: `PatchMaster-Agent-Installer.exe --uninstall --no-pause` (run as Admin).
 - Linux: `sudo /opt/patch-agent/uninstall.sh` (packaged helper) or `sudo patch-agent-uninstall` if the wrapper exists.
-- Full product purge (remove all PatchMaster app/data artifacts): `sudo bash scripts/uninstall_patchmaster.sh --purge-all --force`
+- Full product purge (remove all Patch-SecOps Solution app/data artifacts): `sudo bash scripts/uninstall_patchmaster.sh --purge-all --force`
 
 ## 5) Monitoring
 

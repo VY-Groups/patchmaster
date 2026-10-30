@@ -153,7 +153,7 @@ export default function ProvisioningPage({ hosts, API, apiFetch, useInterval }) 
         setNotice(payload.detail || payload.error?.message || 'Could not capture provisioning template.');
         return;
       }
-      setNotice(`Provisioning template "${payload.name}" captured and stored on the PatchMaster server.`);
+      setNotice(`Provisioning template "${payload.name}" captured and stored on the Patch-SecOps Solution server.`);
       setCaptureForm({ name: '', snapshot_name: '', description: '', labels: '', site_scope: selectedSourceHost?.site || '' });
       await refreshTemplates();
       setSelectedTemplateId(String(payload.id));
@@ -219,7 +219,7 @@ export default function ProvisioningPage({ hosts, API, apiFetch, useInterval }) 
             <div className="ops-hero-copy">
               <h3>Automate recovery-grade OS provisioning with reusable image templates.</h3>
               <p>
-                This workspace turns the existing snapshot and full-system image engine into a repeatable rollout flow. Operators capture a known-good source image, store it on the PatchMaster server, and reimage selected hosts without hand-moving archives between machines.
+                This workspace turns the existing snapshot and full-system image engine into a repeatable rollout flow. Operators capture a known-good source image, store it on the Patch-SecOps Solution server, and reimage selected hosts without hand-moving archives between machines.
               </p>
             </div>
           </div>
@@ -269,7 +269,7 @@ export default function ProvisioningPage({ hosts, API, apiFetch, useInterval }) 
           <div className="ops-table-toolbar">
             <div>
               <div className="ops-panel-title">1. Capture a provisioning template</div>
-              <p className="ops-subtle">Choose a source host, select one of its exported snapshots, and store the archive on the PatchMaster server as a reusable golden image.</p>
+              <p className="ops-subtle">Choose a source host, select one of its exported snapshots, and store the archive on the Patch-SecOps Solution server as a reusable golden image.</p>
             </div>
           </div>
           <div className="ops-form-grid">
@@ -416,7 +416,7 @@ export default function ProvisioningPage({ hosts, API, apiFetch, useInterval }) 
         <div className="ops-table-toolbar">
           <div>
             <div className="ops-panel-title">Provisioning templates</div>
-            <p className="ops-subtle">These are the stored golden images currently held on the PatchMaster server.</p>
+            <p className="ops-subtle">These are the stored golden images currently held on the Patch-SecOps Solution server.</p>
           </div>
           <button className="btn btn-sm" onClick={refreshTemplates}>Refresh templates</button>
         </div>

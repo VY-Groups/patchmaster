@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta name="description" content="PatchMaster Enterprise - Automated Patch Management">
-<meta property="og:title" content="PatchMaster Enterprise">
+<meta name="description" content="Patch-SecOps Solution Enterprise - Automated Patch Management">
+<meta property="og:title" content="Patch-SecOps Solution Enterprise">
 <meta property="og:description" content="Automated Patch Management">
 <meta property="og:type" content="website">
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PatchMaster Internal License And Release Architecture</title>
+  <title>Patch-SecOps Solution Internal License And Release Architecture</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
@@ -234,7 +234,7 @@ flowchart LR
     C["Vendor Tarball"]           --> D["patchmaster-vendor-2.0.0.tar.gz\nincludes private authority bundle"]
     E["Internal Recovery Files"] --> F["dist/private/\nruntime + authority recovery copies"]
 
-    B --> G["PatchMaster Server"]
+    B --> G["Patch-SecOps Solution Server"]
     D --> H["Vendor Server"]
     F --> I["Operator secure storage"]
         </div>
@@ -243,8 +243,8 @@ flowchart LR
 
     <div class="diagram-block">
       <div class="diagram-header">
-        <h2><span class="num">3</span> PatchMaster Install Flow</h2>
-        <p>How the runtime license bundle gets installed on a PatchMaster server from the customer product tarball.</p>
+        <h2><span class="num">3</span> Patch-SecOps Solution Install Flow</h2>
+        <p>How the runtime license bundle gets installed on a Patch-SecOps Solution server from the customer product tarball.</p>
       </div>
       <div class="diagram-body">
         <div class="mermaid">
@@ -252,8 +252,8 @@ flowchart TD
     A["Operator copies customer product tarball"] --> B["Extract patchmaster-product-2.0.0.tar.gz"]
     B --> C["Run packaging/install-bare.sh"]
     C --> D["Installer reads bundled patchmaster-license-public.env"]
-    D --> E["Writes LICENSE_VERIFY_PUBLIC_KEY + LICENSE_DECRYPT_PRIVATE_KEY\ninto PatchMaster env"]
-    E --> F["PatchMaster verifies and decrypts licenses locally"]
+    D --> E["Writes LICENSE_VERIFY_PUBLIC_KEY + LICENSE_DECRYPT_PRIVATE_KEY\ninto Patch-SecOps Solution env"]
+    E --> F["Patch-SecOps Solution verifies and decrypts licenses locally"]
         </div>
       </div>
     </div>
@@ -279,25 +279,25 @@ flowchart TD
     <div class="diagram-block">
       <div class="diagram-header">
         <h2><span class="num">5</span> Runtime License Flow</h2>
-        <p>End-to-end flow from Vendor customer record creation through final PM2 license activation in PatchMaster.</p>
+        <p>End-to-end flow from Vendor customer record creation through final PM2 license activation in Patch-SecOps Solution.</p>
       </div>
       <div class="diagram-body">
         <div class="mermaid">
 flowchart TD
     A["Vendor records customer and purchase"] --> B["Issue POC or testing license"]
-    B --> C["Customer activates testing license in PatchMaster"]
+    B --> C["Customer activates testing license in Patch-SecOps Solution"]
     C --> D["Customer shares verified hardware or MAC ID with Vendor"]
     D --> E["Vendor updates customer record with final binding ID"]
     E --> F["Vendor generates final bound PM2 license"]
-    F --> G["Customer activates final PM2 in PatchMaster"]
-    H["PatchMaster runtime license bundle"] --> I["Verify Ed25519 signature\nand decrypt claims locally"]
+    F --> G["Customer activates final PM2 in Patch-SecOps Solution"]
+    H["Patch-SecOps Solution runtime license bundle"] --> I["Verify Ed25519 signature\nand decrypt claims locally"]
     G --> I
     I -->|Valid| J["License accepted"]
     I -->|Invalid| K["Signature, decrypt, or binding validation failed"]
         </div>
       </div>
       <div class="note-block">
-        PatchMaster verifies and decrypts licenses <strong>locally</strong> using its bundled runtime material. The Vendor portal does not need to be reachable at runtime. Hardware or MAC ID binding is recorded in the Vendor portal before the final license is generated.
+        Patch-SecOps Solution verifies and decrypts licenses <strong>locally</strong> using its bundled runtime material. The Vendor portal does not need to be reachable at runtime. Hardware or MAC ID binding is recorded in the Vendor portal before the final license is generated.
       </div>
     </div>
 
@@ -321,14 +321,14 @@ flowchart TD
     <div class="diagram-block">
       <div class="diagram-header">
         <h2><span class="num">7</span> Safe Usage Rule</h2>
-        <p>How to ensure Vendor and PatchMaster always share the same license authority set.</p>
+        <p>How to ensure Vendor and Patch-SecOps Solution always share the same license authority set.</p>
       </div>
       <div class="diagram-body">
         <div class="mermaid">
 flowchart TD
-    A["Need Vendor and PatchMaster to work together"] --> B["Use product and vendor packages\nthat share the same license authority set"]
+    A["Need Vendor and Patch-SecOps Solution to work together"] --> B["Use product and vendor packages\nthat share the same license authority set"]
     B --> C["Vendor signs with the matching private key"]
-    B --> D["PatchMaster verifies and decrypts\nwith the matching runtime bundle"]
+    B --> D["Patch-SecOps Solution verifies and decrypts\nwith the matching runtime bundle"]
     C --> E["New PM2 licenses validate correctly"]
     D --> E
         </div>
@@ -363,16 +363,16 @@ flowchart TD
           <ol>
             <li>Run <code>bash scripts/build-stable.sh</code>.</li>
             <li>Keep <code>dist/private/patchmaster-license-authority.env</code> private.</li>
-            <li>Send <code>dist/patchmaster-product-2.0.0.tar.gz</code> to the PatchMaster server.</li>
+            <li>Send <code>dist/patchmaster-product-2.0.0.tar.gz</code> to the Patch-SecOps Solution server.</li>
             <li>Send <code>vendor/dist/patchmaster-vendor-2.0.0.tar.gz</code> to the Vendor server.</li>
           </ol>
         </div>
         <div class="instr-card">
-          <strong>PatchMaster Server</strong>
+          <strong>Patch-SecOps Solution Server</strong>
           <ol>
             <li>Extract the customer product tarball.</li>
             <li>Run <code>bash packaging/install-bare.sh --with-monitoring</code>.</li>
-            <li>PatchMaster installs with the bundled runtime license bundle.</li>
+            <li>Patch-SecOps Solution installs with the bundled runtime license bundle.</li>
           </ol>
         </div>
         <div class="instr-card">

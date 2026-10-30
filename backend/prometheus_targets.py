@@ -1,4 +1,4 @@
-"""Helpers for Prometheus scrape target config managed by PatchMaster."""
+"""Helpers for Prometheus scrape target config managed by Patch-SecOps Solution."""
 import json
 import os
 from pathlib import Path

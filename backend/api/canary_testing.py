@@ -1,5 +1,5 @@
 """
-Canary Testing API for PatchMaster.
+Canary Testing API for Patch-SecOps Solution.
 
 Provides canary deployment and testing functionality.
 Routes a small percentage of traffic to new patches, monitors for issues,

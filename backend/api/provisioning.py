@@ -368,7 +368,6 @@ async def list_templates(
     user: User = Depends(get_current_user),
 ):
     _ensure_provisioning_access()
-    await _ensure_provisioning_schema(db)
     query = (
         select(ProvisioningTemplate)
         .options(selectinload(ProvisioningTemplate.source_host))
@@ -387,7 +386,6 @@ async def capture_template(
     user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
     _ensure_provisioning_access()
-    await _ensure_provisioning_schema(db)
     existing = await db.execute(select(ProvisioningTemplate).where(ProvisioningTemplate.name == body.name.strip()))
     if existing.scalar_one_or_none():
         raise HTTPException(status_code=409, detail="A provisioning template with this name already exists")
@@ -436,7 +434,6 @@ async def update_template(
     user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
     _ensure_provisioning_access()
-    await _ensure_provisioning_schema(db)
     template = await db.get(ProvisioningTemplate, template_id)
     if not template:
         raise HTTPException(status_code=404, detail="Provisioning template not found")
@@ -472,7 +469,6 @@ async def delete_template(
     user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
     _ensure_provisioning_access()
-    await _ensure_provisioning_schema(db)
     template = await db.get(ProvisioningTemplate, template_id)
     if not template:
         raise HTTPException(status_code=404, detail="Provisioning template not found")
@@ -494,7 +490,6 @@ async def list_runs(
     user: User = Depends(require_role(UserRole.admin, UserRole.operator, UserRole.auditor)),
 ):
     _ensure_provisioning_access()
-    await _ensure_provisioning_schema(db)
     query = (
         select(ProvisioningRun)
         .options(selectinload(ProvisioningRun.template))
@@ -512,7 +507,6 @@ async def create_run(
     user: User = Depends(require_role(UserRole.admin, UserRole.operator)),
 ):
     _ensure_provisioning_access()
-    await _ensure_provisioning_schema(db)
     template = await db.get(ProvisioningTemplate, body.template_id)
     if not template:
         raise HTTPException(status_code=404, detail="Provisioning template not found")

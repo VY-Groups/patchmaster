@@ -122,7 +122,7 @@ export default function CICDOpsPage({ API, apiFetch, hasPerm, hasRole, getToken,
   }, [API, apiFetch]);
 
   const fetchHosts = useCallback(() => {
-    apiFetch(`${API}/api/hosts/`).then(r => r.json()).then(d => setHosts(Array.isArray(d) ? d : [])).catch(() => {});
+    apiFetch(`${API}/api/hosts/`).then(r => r.json()).then(d => setHosts(Array.isArray(d) ? d : (Array.isArray(d?.items) ? d.items : []))).catch(() => {});
   }, [API, apiFetch]);
 
   const fetchVariables = useCallback((pipelineId) => {
@@ -650,14 +650,14 @@ export default function CICDOpsPage({ API, apiFetch, hasPerm, hasRole, getToken,
                 <div>
                   <label style={{fontSize:12,fontWeight:600}}>CI/CD Tool *</label>
                   <select className="input" value={form.tool} onChange={e=>setForm(f=>({...f,tool:e.target.value,script_type:(e.target.value==='internal'?'internal_v2':(f.script_type==='internal_v2'?'groovy':f.script_type))}))}>
-                    <option value="internal">PatchMaster Internal (Standalone)</option>
+                    <option value="internal">Patch-SecOps Solution Internal (Standalone)</option>
                     <option value="jenkins">Jenkins</option>
                     <option value="gitlab">GitLab CI</option>
                     <option value="custom">Custom Webhook</option>
                   </select>
                 </div>
                 <div style={{gridColumn:'1/-1',fontSize:12,color:'#64748b'}}>
-                  Standalone mode runs fully inside PatchMaster. Jenkins/GitLab/Custom remain optional integrations.
+                  Standalone mode runs fully inside Patch-SecOps Solution. Jenkins/GitLab/Custom remain optional integrations.
                 </div>
                 <div style={{gridColumn:'1/-1'}}>
                   <label style={{fontSize:12,fontWeight:600}}>Description</label>
@@ -750,7 +750,7 @@ export default function CICDOpsPage({ API, apiFetch, hasPerm, hasRole, getToken,
                         <span style={{display:'inline-flex',color:'#64748b'}}><AppIcon name={p.tool==='jenkins' ? 'settings' : p.tool==='gitlab' ? 'pipeline' : p.tool==='internal' ? 'server' : 'monitor'} size={20} /></span>
                         <div>
                           <h4 style={{margin:0}}>{p.name}</h4>
-                          <span style={{fontSize:12,color:'#9ca3af'}}>{p.tool.charAt(0).toUpperCase()+p.tool.slice(1)} • {p.server_url || 'PatchMaster internal engine'} • {p.job_path || 'No job path'}</span>
+                          <span style={{fontSize:12,color:'#9ca3af'}}>{p.tool.charAt(0).toUpperCase()+p.tool.slice(1)} • {p.server_url || 'Patch-SecOps Solution internal engine'} • {p.job_path || 'No job path'}</span>
                         </div>
                       </div>
                       {p.description && <p style={{margin:'6px 0 0',fontSize:13,color:'#9ca3af'}}>{p.description}</p>}
@@ -1529,7 +1529,7 @@ export default function CICDOpsPage({ API, apiFetch, hasPerm, hasRole, getToken,
                 <h5>GitLab CI</h5>
                 <ol style={{fontSize:13,paddingLeft:20}}>
                   <li>Go to Settings → Webhooks</li>
-                  <li>Enter the PatchMaster webhook URL</li>
+                  <li>Enter the Patch-SecOps Solution webhook URL</li>
                   <li>Set Secret Token to your pipeline's webhook secret</li>
                   <li>Select "Pipeline events" trigger</li>
                   <li>Use <code>.gitlab-ci.yml</code> with YAML template</li>
@@ -1667,7 +1667,7 @@ export default function CICDOpsPage({ API, apiFetch, hasPerm, hasRole, getToken,
               <div>
                 <h3 style={{ margin: 0 }}>Agent Targets</h3>
                 <p style={{ color: '#9ca3af', margin: '4px 0 0', fontSize: 13 }}>
-                  Map pipeline environments to specific hosts. Stages with <code>runner_label: agent</code> or a matching label will execute on the target host via the PatchMaster agent.
+                  Map pipeline environments to specific hosts. Stages with <code>runner_label: agent</code> or a matching label will execute on the target host via the Patch-SecOps Solution agent.
                 </p>
               </div>
               <button className="btn btn-sm" onClick={() => { fetchAgentTargets(selectedPipeline); fetchHosts(); }} disabled={agentTargetsLoading}>
@@ -1816,7 +1816,7 @@ export default function CICDOpsPage({ API, apiFetch, hasPerm, hasRole, getToken,
             </div>
 
             <div style={{ marginTop: 16, padding: '12px 16px', background: '#f0fdf4', borderRadius: 8, border: '1px solid #bbf7d0', fontSize: 13 }}>
-              <strong>How it works:</strong> In your pipeline JSON script, set <code>runner_label</code> on a stage to match a target label (or use <code>"agent"</code> to match all active targets for the pipeline). The stage command will be dispatched to the host via the PatchMaster agent <code>/run</code> endpoint and the output streamed back into the build log.
+              <strong>How it works:</strong> In your pipeline JSON script, set <code>runner_label</code> on a stage to match a target label (or use <code>"agent"</code> to match all active targets for the pipeline). The stage command will be dispatched to the host via the Patch-SecOps Solution agent <code>/run</code> endpoint and the output streamed back into the build log.
             </div>
           </div>
         </div>

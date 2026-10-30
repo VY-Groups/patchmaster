@@ -1,10 +1,10 @@
 #!/bin/bash
 # Fix agent registration issues
-# Run this on the AGENT machine (not the PatchMaster server)
+# Run this on the AGENT machine (not the Patch-SecOps Solution server)
 
 set -e
 
-echo "=== PatchMaster Agent Registration Fix ==="
+echo "=== Patch-SecOps Solution Agent Registration Fix ==="
 echo ""
 
 # Colors
@@ -26,7 +26,7 @@ fi
 
 if [ -z "$CONTROLLER_URL" ]; then
     echo -e "${YELLOW}[!]${NC} CONTROLLER_URL not set"
-    read -p "Enter PatchMaster server IP or hostname: " CONTROLLER_IP
+    read -p "Enter Patch-SecOps Solution server IP or hostname: " CONTROLLER_IP
     CONTROLLER_URL="http://${CONTROLLER_IP}:8000"
     echo "CONTROLLER_URL=${CONTROLLER_URL}" > /etc/patch-agent/env
     echo -e "${GREEN}✓${NC} CONTROLLER_URL set to: ${CONTROLLER_URL}"
@@ -35,7 +35,7 @@ else
 fi
 
 echo ""
-echo -e "${YELLOW}[1/6]${NC} Testing connectivity to PatchMaster server..."
+echo -e "${YELLOW}[1/6]${NC} Testing connectivity to Patch-SecOps Solution server..."
 
 # Extract host and port from CONTROLLER_URL
 CONTROLLER_HOST=$(echo $CONTROLLER_URL | sed -e 's|^[^/]*//||' -e 's|:.*||')
@@ -43,11 +43,11 @@ CONTROLLER_PORT=$(echo $CONTROLLER_URL | sed -e 's|^[^:]*:||' -e 's|/.*||')
 
 # Test connectivity
 if curl -s -f --connect-timeout 5 ${CONTROLLER_URL}/api/health > /dev/null 2>&1; then
-    echo -e "${GREEN}✓${NC} Successfully connected to PatchMaster server"
+    echo -e "${GREEN}✓${NC} Successfully connected to Patch-SecOps Solution server"
     HEALTH=$(curl -s ${CONTROLLER_URL}/api/health)
     echo "  Server response: $HEALTH"
 else
-    echo -e "${RED}✗${NC} Cannot connect to PatchMaster server at ${CONTROLLER_URL}"
+    echo -e "${RED}✗${NC} Cannot connect to Patch-SecOps Solution server at ${CONTROLLER_URL}"
     echo ""
     echo "Troubleshooting:"
     echo "  1. Verify server IP/hostname is correct"
@@ -165,7 +165,7 @@ echo ""
 systemctl status patch-agent-heartbeat --no-pager -l | head -5
 echo ""
 echo "Next Steps:"
-echo "  1. Check PatchMaster UI - this host should appear in Hosts page"
+echo "  1. Check Patch-SecOps Solution UI - this host should appear in Hosts page"
 echo "  2. If not visible, check server logs: ssh ${CONTROLLER_HOST} 'journalctl -u patchmaster-backend -f'"
 echo "  3. Run diagnostics on server: ssh ${CONTROLLER_HOST} 'sudo bash diagnose_agent_issues.sh'"
 echo ""

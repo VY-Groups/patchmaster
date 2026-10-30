@@ -1,10 +1,10 @@
 #!/bin/bash
 # Fix WebSocket connections and Groups & Tags page issues
-# Run this on the PatchMaster server (172.24.1.254)
+# Run this on the Patch-SecOps Solution server (172.24.1.254)
 
 set -e
 
-echo "=== PatchMaster WebSocket & Groups Fix ==="
+echo "=== Patch-SecOps Solution WebSocket & Groups Fix ==="
 echo ""
 
 # Colors for output
@@ -145,7 +145,7 @@ echo "  • Tested API endpoints"
 echo ""
 echo "Next steps:"
 echo "  1. Clear your browser cache (Ctrl+Shift+Delete)"
-echo "  2. Reload the PatchMaster web interface"
+echo "  2. Reload the Patch-SecOps Solution web interface"
 echo "  3. Navigate to Groups & Tags page"
 echo "  4. Check browser console (F12) for any remaining errors"
 echo ""

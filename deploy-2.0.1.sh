@@ -1,12 +1,12 @@
 #!/bin/bash
-# PatchMaster 2.0.1 Deployment Script
+# Patch-SecOps Solution 2.0.1 Deployment Script
 # Deploy to Ubuntu server at 172.24.1.254
 set -e
 
 SERVER="172.24.1.254"
 PACKAGE="dist/patchmaster-2.0.1.tar.gz"
 
-echo "=== PatchMaster 2.0.1 Deployment ==="
+echo "=== Patch-SecOps Solution 2.0.1 Deployment ==="
 echo ""
 echo "This will deploy to: $SERVER"
 echo "Package: $PACKAGE"
@@ -36,7 +36,7 @@ echo ""
 echo "=== Deployment Complete ==="
 echo ""
 echo "Next steps:"
-echo "1. Access PatchMaster at: http://${SERVER}:3000"
+echo "1. Access Patch-SecOps Solution at: http://${SERVER}:3000"
 echo "2. Deploy agent to agent machine:"
 echo "   curl -fsSL -o agent-latest.deb http://${SERVER}:3000/download/agent-latest.deb"
 echo "   sudo dpkg -i agent-latest.deb"

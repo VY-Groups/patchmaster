@@ -12,11 +12,9 @@ from dataclasses import dataclass
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from sqlalchemy import Column, Integer, String, DateTime, JSON, ForeignKey
-from sqlalchemy.orm import relationship
 
-from database import Base, get_db
-from models.db_models import Host
+from database import get_db
+from models.db_models import ConfigBaseline, Host
 from auth import get_current_user
 
 logger = logging.getLogger(__name__)
@@ -70,34 +68,6 @@ class DriftReport:
     medium_count: int
     low_count: int
     compliance_score: float  # 0-100
-
-
-# Database model for storing baselines
-class ConfigBaseline(Base):
-    """Stored configuration baseline for a host."""
-
-    __tablename__ = "config_baselines"
-
-    id = Column(Integer, primary_key=True)
-    host_id = Column(
-        Integer, ForeignKey("hosts.id", ondelete="CASCADE"), nullable=False, index=True
-    )
-    baseline_name = Column(String(100), nullable=False)
-    baseline_type = Column(String(20), nullable=False)  # snapshot, manual, scheduled
-    # JSON stores the baseline data - structure varies by drift_type
-    packages = Column(JSON, default=dict)  # {package_name: version}
-    services = Column(JSON, default=dict)  # {service_name: status}
-    network = Column(JSON, default=dict)  # {interface: {key: value}}
-    registry = Column(JSON, default=dict)  # Windows registry entries
-    files = Column(JSON, default=dict)  # {file_path: {hash, mtime, content}}
-    baseline_metadata = Column(JSON, default=dict)  # Additional metadata
-    created_at = Column(DateTime, default=datetime.utcnow)
-    created_by = Column(String(100), nullable=True)
-
-    # Note: Host relationship intentionally omitted to avoid conflicts
-
-    def __repr__(self):
-        return f"<ConfigBaseline id={self.id} host_id={self.host_id} name={self.baseline_name}>"
 
 
 @dataclass
